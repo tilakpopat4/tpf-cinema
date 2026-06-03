@@ -316,7 +316,7 @@ const userDisplayName = document.getElementById('user-display-name');
 
 // Check active login state
 function initAuth() {
-    const storedUser = sessionStorage.getItem('tpf_active_user');
+    const storedUser = localStorage.getItem('tpf_active_user');
     if (storedUser) {
         try {
             const user = JSON.parse(storedUser);
@@ -346,22 +346,36 @@ function getWatchlistInterests() {
 }
 
 function lockPlatform() {
-    authGate.classList.remove('hidden');
-    siteHeader.classList.add('locked-blur');
-    moviesSection.classList.add('locked-blur');
-    document.getElementById('hero-banner').classList.add('locked-blur');
+    const authGateEl = document.getElementById('auth-gate');
+    const siteHeaderEl = document.getElementById('site-header');
+    const moviesSectionEl = document.getElementById('movies-section');
+    const heroBannerEl = document.getElementById('hero-banner');
+
+    if (authGateEl) authGateEl.classList.remove('hidden');
+    if (siteHeaderEl) siteHeaderEl.classList.add('locked-blur');
+    if (moviesSectionEl) moviesSectionEl.classList.add('locked-blur');
+    if (heroBannerEl) heroBannerEl.classList.add('locked-blur');
 }
 
 function unlockPlatform(user) {
-    authGate.classList.add('hidden');
-    siteHeader.classList.remove('locked-blur');
-    moviesSection.classList.remove('locked-blur');
-    document.getElementById('hero-banner').classList.remove('locked-blur');
+    const authGateEl = document.getElementById('auth-gate');
+    const siteHeaderEl = document.getElementById('site-header');
+    const moviesSectionEl = document.getElementById('movies-section');
+    const heroBannerEl = document.getElementById('hero-banner');
+    const userAvatarEl = document.getElementById('user-avatar');
+    const userDisplayNameEl = document.getElementById('user-display-name');
+
+    if (authGateEl) authGateEl.classList.add('hidden');
+    if (siteHeaderEl) siteHeaderEl.classList.remove('locked-blur');
+    if (moviesSectionEl) moviesSectionEl.classList.remove('locked-blur');
+    if (heroBannerEl) heroBannerEl.classList.remove('locked-blur');
     
     // Update user visual interface
-    userAvatar.src = user.picture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop';
-    userDisplayName.textContent = user.name;
-    userDisplayName.style.display = 'inline';
+    if (userAvatarEl) userAvatarEl.src = user.picture || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop';
+    if (userDisplayNameEl) {
+        userDisplayNameEl.textContent = user.name;
+        userDisplayNameEl.style.display = 'inline';
+    }
 
     // Automatically analyze watchlist and build customized feed!
     renderRows(movies);
@@ -399,7 +413,7 @@ window.handleGoogleLogin = function(response) {
             email: responsePayload.email,
             picture: responsePayload.picture
         };
-        sessionStorage.setItem('tpf_active_user', JSON.stringify(userData));
+        localStorage.setItem('tpf_active_user', JSON.stringify(userData));
         unlockPlatform(userData);
     }
 };
@@ -411,7 +425,7 @@ demoLoginBtn.addEventListener('click', () => {
         email: "guest@tpfcinema.com",
         picture: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"
     };
-    sessionStorage.setItem('tpf_active_user', JSON.stringify(mockUser));
+    localStorage.setItem('tpf_active_user', JSON.stringify(mockUser));
     unlockPlatform(mockUser);
 });
 
@@ -427,7 +441,7 @@ document.addEventListener('click', () => {
 
 // Log out operation
 logoutBtn.addEventListener('click', () => {
-    sessionStorage.removeItem('tpf_active_user');
+    localStorage.removeItem('tpf_active_user');
     lockPlatform();
 });
 
