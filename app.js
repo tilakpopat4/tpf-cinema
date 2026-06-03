@@ -314,14 +314,19 @@ const logoutBtn = document.getElementById('logout-btn');
 const userAvatar = document.getElementById('user-avatar');
 const userDisplayName = document.getElementById('user-display-name');
 
-// Check active login state (TEMPORARILY BYPASSED FOR TESTING/REVIEW)
+// Check active login state
 function initAuth() {
-    const mockUser = {
-        name: "TPF Developer",
-        email: "guest@tpfcinema.com",
-        picture: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"
-    };
-    unlockPlatform(mockUser);
+    const storedUser = sessionStorage.getItem('tpf_active_user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            unlockPlatform(user);
+        } catch (e) {
+            lockPlatform();
+        }
+    } else {
+        lockPlatform();
+    }
 }
 
 // Dynamic Real-time Interest Analyzer based on active user Watchlist!
