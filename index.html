@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPF Cinema — Streaming Premium Independent & Classic Cinema</title>
+    <meta name="description" content="Immerse yourself in TPF Cinema. Stream the finest selection of curated independent movies, sci-fi masterpieces, and emotional dramas with premium ultra-responsive playback.">
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for premium icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <!-- Glassmorphic Login / Signup Gate Overlay -->
+    <div class="auth-gate" id="auth-gate">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <i class="fa-solid fa-clapperboard"></i> TPF <span>CINEMA</span>
+            </div>
+            <p class="auth-subtitle">Unlock premium independent films, sci-fi epics, and award-winning dramas.</p>
+            
+            <div class="auth-actions-area">
+                <!-- Native Google OAuth sign-in button mounting point -->
+                <div id="g_id_onload"
+                     data-client_id="891970740308-c9v3pj3b7eilhp108ki23nf9o7svf1jf.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleGoogleLogin"
+                     data-auto_select="false"
+                     data-itp_support="true">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="pill"
+                     data-theme="filled_blue"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
+                </div>
+
+                <div class="auth-divider">
+                    <span>or continue as guest</span>
+                </div>
+
+                <button class="btn btn-secondary" id="demo-login-btn" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-user-shield"></i> Demo Login (Quick Access)
+                </button>
+            </div>
+            
+            <div class="auth-footer">
+                By signing in, you agree to our Terms of Service & Privacy Policy.
+            </div>
+        </div>
+    </div>
+
+    <!-- Transparent Glassmorphism Header -->
+    <header id="site-header" class="locked-blur">
+        <div class="nav-container">
+            <a href="#" class="logo-brand">
+                <i class="fa-solid fa-clapperboard"></i> TPF <span>CINEMA</span>
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="#" class="active" id="nav-home">Home</a></li>
+                <li><a href="#" id="nav-movies">Movies</a></li>
+                <li><a href="#" id="nav-genres">Genres</a></li>
+                <li><a href="#" id="nav-mylist">My Watchlist</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    <input type="text" id="search-input" placeholder="Search titles, genres...">
+                </div>
+
+                <button class="watchlist-trigger" id="toggle-watchlist" aria-label="Open Watchlist">
+                    <i class="fa-solid fa-bookmark"></i>
+                    <span>Watchlist</span>
+                </button>
+
+                <!-- User Profile Dropdown -->
+                <div class="user-profile-menu" id="user-profile-menu" style="position: relative;">
+                    <button class="control-btn" id="user-profile-trigger" style="display: flex; gap: 0.5rem; align-items: center;" aria-label="User profile options">
+                        <img id="user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100&auto=format&fit=crop" alt="User profile avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-glass);">
+                        <span id="user-display-name" style="font-size: 0.9rem; font-weight: 600; display: none;">Guest</span>
+                    </button>
+                    <div class="profile-dropdown" id="profile-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.5rem 0; width: 150px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 100; margin-top: 0.5rem;">
+                        <button class="dropdown-item" id="logout-btn" style="background: transparent; border: none; color: var(--text-main); width: 100%; text-align: left; padding: 0.6rem 1rem; font-size: 0.85rem; font-family: var(--font-sans); cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-sizing: border-box;">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Hero Banner Section -->
+    <main>
+        <section class="hero" id="hero-banner">
+            <div class="hero-bg">
+                <img id="hero-image" src="" alt="Featured Movie Backdrop">
+            </div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <span class="hero-badge" id="hero-badge">TPF Exclusive</span>
+                <h1 class="hero-title" id="hero-title">Loading Featured Movie...</h1>
+                <div class="hero-meta">
+                    <span class="rating" id="hero-rating"><i class="fa-solid fa-star"></i> --</span>
+                    <span id="hero-year">--</span>
+                    <span id="hero-duration">--</span>
+                    <span id="hero-genre">--</span>
+                </div>
+                <p class="hero-desc" id="hero-desc">Experience cinema like never before.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary" id="hero-play-btn">
+                        <i class="fa-solid fa-play"></i> Play Now
+                    </button>
+                    <button class="btn btn-secondary" id="hero-info-btn">
+                        <i class="fa-solid fa-circle-info"></i> More Info
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Content Rows / Sliders -->
+        <section class="main-content" id="movies-section">
+            <!-- Dynamic Category sliders will be inserted here via Javascript -->
+        </section>
+    </main>
+
+    <!-- Persistent Watchlist Side Panel -->
+    <div class="watchlist-panel" id="watchlist-panel">
+        <div class="watchlist-header">
+            <h2 class="row-title">My Watchlist</h2>
+            <button class="control-btn" id="close-watchlist" style="font-size: 1.5rem;" aria-label="Close Watchlist">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="watchlist-grid" id="watchlist-grid">
+            <!-- Watchlist items dynamically added here -->
+            <p style="color: var(--text-dim); text-align: center; margin-top: 2rem;" id="watchlist-empty-msg">Your watchlist is empty.</p>
+        </div>
+    </div>
+
+    <!-- Cinematic Detail Modal / Overlay -->
+    <div class="modal-overlay" id="details-modal">
+        <div class="modal-content">
+            <button class="close-btn" id="close-details" aria-label="Close Details Modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="modal-hero">
+                <img id="modal-backdrop" src="" alt="Backdrop">
+                <div class="modal-hero-overlay"></div>
+                <div class="modal-hero-content">
+                    <!-- Production House Info Overlay Badge -->
+                    <div class="modal-studio-badge" id="modal-studio-badge" style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(10px); padding: 0.4rem 0.8rem; border-radius: 50px; border: 1px solid var(--border-glass); margin-bottom: 1rem;">
+                        <img id="modal-studio-logo" src="" alt="Studio Logo" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
+                        <span id="modal-studio-name" style="font-size: 0.8rem; font-weight: 700; color: #fff;">Studio Name</span>
+                    </div>
+
+                    <h2 class="modal-title" id="modal-title">Movie Title</h2>
+                    
+                    <div class="hero-actions" style="margin-top: 1rem;">
+                        <button class="btn btn-primary" id="modal-play-btn">
+                            <i class="fa-solid fa-play"></i> Play Movie
+                        </button>
+                        <button class="btn btn-secondary" id="modal-trailer-btn" style="background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25);">
+                            <i class="fa-solid fa-film"></i> Watch Trailer
+                        </button>
+                        <button class="btn btn-secondary" id="modal-watchlist-btn" style="padding: 0.9rem 1.25rem;">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body" style="padding: 2.5rem 3rem; display: flex; flex-direction: column; gap: 2rem;">
+                <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 3rem;">
+                    <div class="modal-desc-col">
+                        <p class="modal-desc" id="modal-description" style="margin-bottom: 1.5rem;">Detailed description goes here...</p>
+                        
+                        <!-- Dynamic Cast Slider -->
+                        <div class="modal-cast-section" id="modal-cast-section" style="margin-top: 1.5rem;">
+                            <h3 class="row-title" style="font-size: 1.1rem; margin-bottom: 1rem; font-family: var(--font-display);">Principal Cast</h3>
+                            <div class="cast-track" id="modal-cast-track" style="display: flex; gap: 1.25rem; overflow-x: auto; padding: 0.5rem 0;">
+                                <!-- Circular actor items loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Series Episodes (Only shown for Series type) -->
+                        <div class="modal-episodes-section" id="modal-episodes-section" style="margin-top: 2rem; display: none;">
+                            <h3 class="row-title" style="font-size: 1.1rem; margin-bottom: 1rem; font-family: var(--font-display);">Episodes</h3>
+                            <div class="episodes-list" id="modal-episodes-list" style="display: flex; flex-direction: column; gap: 0.75rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.25rem;">
+                                <!-- Dynamic Episode rows loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-info-col">
+                        <ul class="modal-info-list" style="background: rgba(255,255,255,0.02); border: 1px solid var(--border-glass); border-radius: 12px; padding: 1.5rem;">
+                            <li><span>Rating:</span> <strong id="modal-rating" style="color: #ffd166;"><i class="fa-solid fa-star"></i> 8.5</strong></li>
+                            <li><span>Release Year:</span> <strong id="modal-year">2026</strong></li>
+                            <li><span>Duration:</span> <strong id="modal-duration">2h 15m</strong></li>
+                            <li><span>Genres:</span> <strong id="modal-genre">Sci-Fi, Action</strong></li>
+                            <li style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 1rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                                <span style="font-size: 0.8rem;">Available Audio:</span>
+                                <strong id="modal-audio" style="font-size: 0.85rem; color: #fff;">English, Spanish</strong>
+                            </li>
+                            <li style="display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.5rem;">
+                                <span style="font-size: 0.8rem;">Subtitles:</span>
+                                <strong id="modal-subtitles" style="font-size: 0.85rem; color: #fff;">English, Spanish, French</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Native Premium Styled Video Player Overlay -->
+    <div class="player-overlay" id="video-player-overlay">
+        <div class="player-container" id="player-container">
+            <button class="close-player-btn" id="close-player" aria-label="Close Player">
+                <i class="fa-solid fa-arrow-left" style="font-size: 1.5rem;"></i>
+            </button>
+            
+            <!-- Standard Video Tag playing our Direct/Mock Video link -->
+            <video id="native-video" src="" preload="auto" controlsList="nodownload" oncontextmenu="return false;"></video>
+            
+            <!-- Custom UI Skin overlaying the video tag -->
+            <div class="player-controls">
+                <div class="progress-area">
+                    <div class="progress-bar-container" id="player-progress-container">
+                        <div class="progress-filled" id="player-progress-filled"></div>
+                    </div>
+                </div>
+                
+                <div class="controls-row">
+                    <div class="controls-left">
+                        <button class="control-btn" id="player-play-toggle" aria-label="Play/Pause">
+                            <i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>
+                        </button>
+                        <button class="control-btn" id="player-rewind" aria-label="Rewind 10s">
+                            <i class="fa-solid fa-backward" style="font-size: 1.1rem;"></i>
+                        </button>
+                        <button class="control-btn" id="player-forward" aria-label="Forward 10s">
+                            <i class="fa-solid fa-forward" style="font-size: 1.1rem;"></i>
+                        </button>
+                        
+                        <div class="volume-container">
+                            <button class="control-btn" id="player-volume-toggle" aria-label="Mute/Unmute">
+                                <i class="fa-solid fa-volume-high"></i>
+                            </button>
+                            <input type="range" class="volume-slider" id="player-volume-slider" min="0" max="1" step="0.05" value="0.8">
+                        </div>
+                        
+                        <span class="time-display">
+                            <span id="player-current-time">0:00</span> / <span id="player-duration">0:00</span>
+                        </span>
+                    </div>
+                    
+                    <div class="controls-right">
+                        <!-- Playback Speed Control -->
+                        <div style="position: relative;">
+                            <button class="control-btn" id="player-speed-btn" style="font-size: 0.9rem; font-weight: 700;">1.0x</button>
+                        </div>
+                        <!-- Video Quality Selector -->
+                        <div style="position: relative;" id="player-quality-container">
+                            <button class="control-btn" id="player-quality-btn" style="font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem;"><i class="fa-solid fa-sliders"></i> 1080p</button>
+                            <div class="quality-dropdown" id="player-quality-dropdown" style="display: none; position: absolute; bottom: 100%; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.5rem 0; width: 100px; box-shadow: 0 -10px 25px rgba(0,0,0,0.5); z-index: 100; margin-bottom: 0.5rem; flex-direction: column;">
+                                <!-- Dynamic Options -->
+                            </div>
+                        </div>
+                        <button class="control-btn" id="player-fullscreen" aria-label="Toggle Fullscreen">
+                            <i class="fa-solid fa-expand" style="font-size: 1.15rem;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Core App Logic -->
+
+
+
+    <!-- Core App Logic -->
+    <script src="app.js"></script>
+</body>
+</html>

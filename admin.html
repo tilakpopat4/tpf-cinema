@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPF Cinema — Admin Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Font Awesome for premium icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background-color: var(--bg-primary);">
+
+    <div class="admin-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="admin-sidebar" style="height: 100vh; position: sticky; top: 0;">
+            <div class="logo-brand" style="margin-bottom: 3rem; font-size: 1.5rem;">
+                <i class="fa-solid fa-user-gear"></i> Admin <span>Portal</span>
+            </div>
+            <nav class="admin-nav">
+                <button class="admin-nav-item active" id="admin-tab-catalog"><i class="fa-solid fa-film"></i> Manage Catalog</button>
+                <button class="admin-nav-item" id="admin-tab-hero"><i class="fa-solid fa-images"></i> Hero Banner Manager</button>
+                <button class="admin-nav-item" id="admin-tab-firebase"><i class="fa-solid fa-cloud"></i> Cloud Settings</button>
+            </nav>
+            <a href="index.html" class="btn btn-secondary" style="margin-top: auto; width: 100%; justify-content: center; font-size: 0.9rem; text-decoration: none;">
+                <i class="fa-solid fa-arrow-left-long"></i> View Live Site
+            </a>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+            <!-- Manage Catalog Panel -->
+            <div class="admin-panel-content" id="panel-catalog">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="row-title" style="font-size: 2.5rem; margin-bottom: 0.25rem; font-family: var(--font-display);">Content Catalog</h1>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Manage movie items, descriptions, category groupings, and streaming links.</p>
+                    </div>
+                    <button class="btn btn-primary" id="add-movie-trigger">
+                        <i class="fa-solid fa-plus"></i> Add Movie Item
+                    </button>
+                </div>
+
+                <!-- Stats Bar -->
+                <div class="admin-stats-bar">
+                    <div class="stat-card">
+                        <span class="stat-title">Total Movies</span>
+                        <span class="stat-value" id="stat-total-movies">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-title">Active Genres</span>
+                        <span class="stat-value" id="stat-total-genres">5</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-title">Storage Sync</span>
+                        <span class="stat-value" id="stat-storage-sync" style="color: #4cc9f0;">Local</span>
+                    </div>
+                </div>
+
+                <!-- Catalog Table Container -->
+                <div class="catalog-table-container">
+                    <table class="catalog-table">
+                        <thead>
+                            <tr>
+                                <th>Poster</th>
+                                <th>Title</th>
+                                <th>Genre</th>
+                                <th>Year</th>
+                                <th>Rating</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="catalog-table-body">
+                            <!-- Catalog movies loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Hero Banner Manager Panel -->
+            <div class="admin-panel-content" id="panel-hero" style="display: none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="row-title" style="font-size: 2.5rem; margin-bottom: 0.25rem; font-family: var(--font-display);">Hero Banner Manager</h1>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Dynamically select the primary movie showcase banner featured at the top of the homepage.</p>
+                    </div>
+                </div>
+
+                <div class="hero-selector-card" style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 12px; padding: 2.5rem; max-width: 600px; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; font-family: var(--font-display); color: #fff;">Select Featured Title</h3>
+                    <div class="form-group" style="margin-bottom: 2rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Choose Movie</label>
+                        <select id="hero-selection-dropdown" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.8rem; border-radius: 8px; font-family: var(--font-sans); outline: none;">
+                            <!-- Option tags dynamically loaded -->
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="save-hero-selection" style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-floppy-disk"></i> Apply Featured Banner
+                    </button>
+                </div>
+            </div>
+
+            <!-- Firebase Cloud Settings Panel -->
+            <div class="admin-panel-content" id="panel-firebase" style="display: none;">
+                <div class="admin-header">
+                    <div>
+                        <h1 class="row-title" style="font-size: 2.5rem; margin-bottom: 0.25rem; font-family: var(--font-display);">Firebase Cloud Storage Settings</h1>
+                        <p style="color: var(--text-muted); font-size: 0.95rem;">Configure your Firebase Cloud Storage credentials. Once configured, all images and videos will upload directly to your Firebase bucket instead of local storage.</p>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: 12px; padding: 2.5rem; max-width: 650px; margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1.5rem; font-family: var(--font-display); color: #fff;"><i class="fa-solid fa-gear"></i> Configuration</h3>
+                    
+                    <form id="firebase-config-form">
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">API Key</label>
+                            <input type="text" id="fb-api-key" placeholder="AIzaSy..." style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; font-family: var(--font-sans);" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">Auth Domain</label>
+                            <input type="text" id="fb-auth-domain" placeholder="project-id.firebaseapp.com" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; font-family: var(--font-sans);" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">Project ID</label>
+                            <input type="text" id="fb-project-id" placeholder="project-id" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; font-family: var(--font-sans);" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">Storage Bucket</label>
+                            <input type="text" id="fb-storage-bucket" placeholder="project-id.appspot.com" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; font-family: var(--font-sans);" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 2rem;">
+                            <label style="display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--text-muted);">App ID</label>
+                            <input type="text" id="fb-app-id" placeholder="1:123456:web:abcd123" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; font-family: var(--font-sans);" required>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center;">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Save & Enable Cloud Sync
+                            </button>
+                            <button type="button" id="fb-clear-config" class="btn btn-secondary" style="background: rgba(239, 71, 111, 0.2); border-color: rgba(239, 71, 111, 0.4); color: #ef476f;">
+                                <i class="fa-solid fa-trash"></i> Clear Settings
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Movie Form Overlay Modal -->
+    <div class="modal-overlay" id="movie-form-modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <button class="close-btn" id="close-movie-form-modal">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div style="padding: 2.5rem 3rem 1rem 3rem; border-bottom: 1px solid var(--border-glass);">
+                <h2 class="modal-title" id="form-modal-title" style="font-size: 2rem;">Add New Movie</h2>
+            </div>
+            
+            <form id="movie-editor-form" style="padding: 2.5rem 3rem; display: flex; flex-direction: column; gap: 1.5rem; max-height: 70vh; overflow-y: auto;">
+                <input type="hidden" id="form-movie-id">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="form-type">Content Type</label>
+                        <select id="form-type">
+                            <option value="movie">Feature Movie</option>
+                            <option value="series">Web Series</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="form-title">Movie / Series Title</label>
+                        <input type="text" id="form-title" placeholder="e.g. Echoes of Orion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-genre">Genres (comma separated)</label>
+                        <input type="text" id="form-genre" placeholder="e.g. Sci-Fi, Action" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="form-year">Release Year</label>
+                        <input type="number" id="form-year" placeholder="e.g. 2026" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-duration">Duration / Season Info</label>
+                        <input type="text" id="form-duration" placeholder="e.g. 2h 14m or 1 Season" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-rating">Rating (0.0 to 10.0)</label>
+                        <input type="text" id="form-rating" placeholder="e.g. 8.9" required>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="form-backdrop">Landscape Poster (Homepage backdrop)</label>
+                        <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="text" id="form-backdrop" placeholder="Image URL or choose local file..." required style="flex: 1;">
+                            <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                <input type="file" accept="image/*" class="local-file-picker" data-target="form-backdrop" style="display: none;">
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-portrait">Portrait Poster (Alternative aspect)</label>
+                        <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="text" id="form-portrait" placeholder="Image URL or choose local file..." required style="flex: 1;">
+                            <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                <input type="file" accept="image/*" class="local-file-picker" data-target="form-portrait" style="display: none;">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="movie-media-fields-group" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="form-video">Video File Link (1080p - Default)</label>
+                            <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="form-video" placeholder="Direct MP4 Link or upload local video..." required style="flex: 1;">
+                                <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                    <input type="file" accept="video/*" class="local-file-picker" data-target="form-video" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="form-video-720">Video File Link (720p - Optional)</label>
+                            <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="form-video-720" placeholder="Direct MP4 Link or upload local video..." style="flex: 1;">
+                                <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                    <input type="file" accept="video/*" class="local-file-picker" data-target="form-video-720" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="form-video-360">Video File Link (360p - Optional)</label>
+                            <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="form-video-360" placeholder="Direct MP4 Link or upload local video..." style="flex: 1;">
+                                <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                    <input type="file" accept="video/*" class="local-file-picker" data-target="form-video-360" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="form-video-4k">Video File Link (4K - Optional)</label>
+                            <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="form-video-4k" placeholder="Direct MP4 Link or upload local video..." style="flex: 1;">
+                                <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                    <input type="file" accept="video/*" class="local-file-picker" data-target="form-video-4k" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+                        <div class="form-group">
+                            <label for="form-trailer">Trailer File Link</label>
+                            <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                                <input type="text" id="form-trailer" placeholder="Trailer Link or choose local video file..." required style="flex: 1;">
+                                <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                    <input type="file" accept="video/*" class="local-file-picker" data-target="form-trailer" style="display: none;">
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="form-studio-name">Production House Name</label>
+                        <input type="text" id="form-studio-name" placeholder="e.g. Legendary Studios" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-studio-logo">Production House Logo</label>
+                        <div class="input-with-upload" style="display: flex; gap: 0.5rem; align-items: center;">
+                            <input type="text" id="form-studio-logo" placeholder="Logo URL or choose local logo..." required style="flex: 1;">
+                            <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.8rem 1rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; white-space: nowrap; transition: var(--transition-fast);">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Upload
+                                <input type="file" accept="image/*" class="local-file-picker" data-target="form-studio-logo" style="display: none;">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="form-audio">Audio Languages (comma separated)</label>
+                        <input type="text" id="form-audio" placeholder="e.g. English, Spanish, Hindi" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-subtitles">Captions / Subtitles (comma separated)</label>
+                        <input type="text" id="form-subtitles" placeholder="e.g. English, Spanish, French" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label style="color: var(--text-muted); font-weight: 600;">Principal Cast Members</label>
+                        <button type="button" class="btn btn-secondary" id="add-cast-member-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; height: auto; display: flex; align-items: center; gap: 0.3rem;">
+                            <i class="fa-solid fa-plus"></i> Add Cast Member
+                        </button>
+                    </div>
+                    <div id="cast-members-container" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 190px; overflow-y: auto; padding-right: 0.5rem; border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.75rem; background: rgba(0,0,0,0.15);">
+                        <!-- Cast rows added here dynamically -->
+                    </div>
+                </div>
+
+                <!-- Series Episodes Builder (Only shown for Series type) -->
+                <div class="form-group" id="series-episodes-group" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                        <label style="color: var(--text-muted); font-weight: 600;">Series Episodes</label>
+                        <button type="button" class="btn btn-secondary" id="add-episode-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; height: auto; display: flex; align-items: center; gap: 0.3rem;">
+                            <i class="fa-solid fa-plus"></i> Add Episode
+                        </button>
+                    </div>
+                    <div id="episodes-container" style="display: flex; flex-direction: column; gap: 0.75rem; max-height: 190px; overflow-y: auto; padding-right: 0.5rem; border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.75rem; background: rgba(0,0,0,0.15);">
+                        <!-- Episode rows added here dynamically -->
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div class="form-group">
+                        <label for="form-category">Display Row Category</label>
+                        <select id="form-category">
+                            <option value="trending">Trending on TPF Cinema</option>
+                            <option value="scifi">Sci-Fi & High Adventure</option>
+                            <option value="drama">Captivating Dramas</option>
+                            <option value="indie">Independent Masterpieces</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="form-badge">Card Badge / Tag (Optional)</label>
+                        <input type="text" id="form-badge" placeholder="e.g. TPF Exclusive, Award Winner">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="form-desc">Synopsis / Description</label>
+                    <textarea id="form-desc" rows="4" placeholder="Brief movie description details..." required></textarea>
+                </div>
+
+                <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" id="form-cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Movie</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Firebase Compat SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+    <!-- Admin Operations JS -->
+    <script src="admin.js"></script>
+</body>
+</html>
