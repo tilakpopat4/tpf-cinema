@@ -307,7 +307,7 @@ const playerQualityDropdown = document.getElementById('player-quality-dropdown')
 
 // 2. Authentication Gate Logic
 const authGate = document.getElementById('auth-gate');
-const demoLoginBtn = document.getElementById('demo-login-btn');
+const customRegistrationForm = document.getElementById('custom-registration-form');
 const userProfileTrigger = document.getElementById('user-profile-trigger');
 const profileDropdown = document.getElementById('profile-dropdown');
 const logoutBtn = document.getElementById('logout-btn');
@@ -389,45 +389,63 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Custom JWT Decoder for Google Credential base64 payload
-function decodeJwt(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        console.error("JWT decoding error:", e);
-        return null;
-    }
+// Custom Form submit handler for Web3Forms + lock check
+if (customRegistrationForm) {
+    customRegistrationForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('reg-submit-btn');
+        const originalBtnHTML = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+        
+        const name = document.getElementById('reg-name').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+        
+        const formData = new FormData(customRegistrationForm);
+        const object = Object.fromEntries(formData);
+        const json = JSON.stringify(object);
+        
+        try {
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                const userData = {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    picture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop'
+                };
+                localStorage.setItem('tpf_active_user', JSON.stringify(userData));
+                unlockPlatform(userData);
+            } else {
+                alert("Registration Failed: " + (result.message || "Please check your network and try again."));
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHTML;
+            }
+        } catch (error) {
+            console.error("Submit error:", error);
+            // Fallback unlock to prevent users getting locked out on transient API error
+            const userData = {
+                name: name,
+                email: email,
+                phone: phone,
+                picture: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop'
+            };
+            localStorage.setItem('tpf_active_user', JSON.stringify(userData));
+            unlockPlatform(userData);
+        }
+    });
 }
-
-// Global Callback handler registered to window for Google OAuth Sign-In response
-window.handleGoogleLogin = function(response) {
-    const responsePayload = decodeJwt(response.credential);
-    if (responsePayload) {
-        const userData = {
-            name: responsePayload.name,
-            email: responsePayload.email,
-            picture: responsePayload.picture
-        };
-        localStorage.setItem('tpf_active_user', JSON.stringify(userData));
-        unlockPlatform(userData);
-    }
-};
-
-// Demo/Quick Access login handler
-demoLoginBtn.addEventListener('click', () => {
-    const mockUser = {
-        name: "Cinematic Fan",
-        email: "guest@tpfcinema.com",
-        picture: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100&auto=format&fit=crop"
-    };
-    localStorage.setItem('tpf_active_user', JSON.stringify(mockUser));
-    unlockPlatform(mockUser);
-});
 
 // Dropdown interface interaction
 userProfileTrigger.addEventListener('click', (e) => {
