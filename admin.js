@@ -248,6 +248,16 @@ function handleCloudOrLocalUpload(file, targetInput) {
 
 // Setup File Pickers to load base64/object URLs or upload to Firebase
 function initLocalFilePickers() {
+    // Add click handler for file upload buttons to trigger sibling inputs
+    document.querySelectorAll('.file-upload-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const picker = btn.nextElementSibling;
+            if (picker && picker.classList.contains('local-file-picker')) {
+                picker.click();
+            }
+        });
+    });
+
     document.querySelectorAll('.local-file-picker').forEach(picker => {
         picker.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -324,10 +334,10 @@ function addCastRow(name = '', avatar = '') {
         <input type="text" placeholder="Actor Name" class="cast-name" value="${name}" required style="flex: 1; padding: 0.6rem;">
         <div style="display: flex; gap: 0.4rem; align-items: center; flex: 1.5;">
             <input type="text" placeholder="Avatar URL or upload..." class="cast-avatar" value="${avatar}" required style="flex: 1; padding: 0.6rem;">
-            <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+            <button type="button" class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; outline: none;">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <input type="file" accept="image/*" class="local-cast-avatar-picker" style="display: none;">
-            </label>
+            </button>
+            <input type="file" accept="image/*" class="local-cast-avatar-picker" style="display: none;">
         </div>
         <button type="button" class="btn btn-secondary remove-cast-row-btn" style="padding: 0.6rem; background: rgba(239, 71, 111, 0.15); border-color: rgba(239, 71, 111, 0.2); color: #ef476f; font-size: 0.85rem;" aria-label="Remove Cast Member">
             <i class="fa-solid fa-trash-can"></i>
@@ -335,8 +345,14 @@ function addCastRow(name = '', avatar = '') {
     `;
     
     // File upload handler inside cast avatar row
+    const uploadBtn = row.querySelector('.file-upload-btn');
     const fileInput = row.querySelector('.local-cast-avatar-picker');
     const avatarInput = row.querySelector('.cast-avatar');
+    
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         handleCloudOrLocalUpload(file, avatarInput);
@@ -365,7 +381,7 @@ function toggleTypeFields(type) {
         movieMediaFieldsGroup.style.display = 'none';
         seriesEpisodesGroup.style.display = 'block';
         formVideo.required = false;
-        formTrailer.required = false;
+        formTrailer.required = true;
         
         // Enable required validation on episode inputs
         episodesContainer.querySelectorAll('.episode-title, .episode-duration, .episode-video').forEach(input => {
@@ -397,10 +413,10 @@ function addEpisodeRow(title = '', videoUrl = '', duration = '') {
         <input type="text" placeholder="Duration (e.g. 45m)" class="episode-duration" value="${duration}" ${isRequired} style="width: 100px; padding: 0.6rem;">
         <div style="display: flex; gap: 0.4rem; align-items: center; flex: 1.5;">
             <input type="text" placeholder="Video Link or upload..." class="episode-video" value="${videoUrl}" ${isRequired} style="flex: 1; padding: 0.6rem;">
-            <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+            <button type="button" class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem; outline: none;">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <input type="file" accept="video/*" class="local-episode-video-picker" style="display: none;">
-            </label>
+            </button>
+            <input type="file" accept="video/*" class="local-episode-video-picker" style="display: none;">
         </div>
         <button type="button" class="btn btn-secondary remove-episode-row-btn" style="padding: 0.6rem; background: rgba(239, 71, 111, 0.15); border-color: rgba(239, 71, 111, 0.2); color: #ef476f; font-size: 0.85rem;" aria-label="Remove Episode">
             <i class="fa-solid fa-trash-can"></i>
@@ -408,8 +424,14 @@ function addEpisodeRow(title = '', videoUrl = '', duration = '') {
     `;
     
     // File upload handler inside episode video row
+    const uploadBtn = row.querySelector('.file-upload-btn');
     const fileInput = row.querySelector('.local-episode-video-picker');
     const videoInput = row.querySelector('.episode-video');
+    
+    uploadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
         handleCloudOrLocalUpload(file, videoInput);
