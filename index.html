@@ -220,9 +220,33 @@
     <!-- Native Premium Styled Video Player Overlay -->
     <div class="player-overlay" id="video-player-overlay">
         <div class="player-container" id="player-container">
-            <button class="close-player-btn" id="close-player" aria-label="Close Player">
-                <i class="fa-solid fa-arrow-left" style="font-size: 1.5rem;"></i>
-            </button>
+            <!-- Netflix-Style Top Gradient Overlay -->
+            <div class="player-top-gradient" id="player-top-gradient"></div>
+            <!-- Netflix-Style Bottom Gradient Overlay -->
+            <div class="player-bottom-gradient" id="player-bottom-gradient"></div>
+
+            <!-- Netflix-Style Player Header -->
+            <div class="player-header" id="player-header">
+                <button class="control-btn close-player-btn" id="close-player" aria-label="Close Player">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <span id="player-title">Movie Title</span>
+            </div>
+            
+            <!-- Netflix-Style Center Controls (Rewind 10s, Play/Pause, Forward 10s) -->
+            <div id="player-center-controls" class="center-controls-container">
+                <button class="center-control-btn" id="player-center-rewind" aria-label="Rewind 10s">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span class="center-control-num">10</span>
+                </button>
+                <button class="center-control-btn center-play-btn" id="player-center-play-trigger" aria-label="Play/Pause">
+                    <i class="fa-solid fa-play" id="center-play-icon"></i>
+                </button>
+                <button class="center-control-btn" id="player-center-forward" aria-label="Forward 10s">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="center-control-num">10</span>
+                </button>
+            </div>
             
             <!-- Standard Video Tag playing our Direct/Mock Video link -->
             <video id="native-video" src="" preload="auto" controlsList="nodownload" oncontextmenu="return false;"></video>
@@ -236,7 +260,9 @@
             <div class="player-controls">
                 <div class="progress-area">
                     <div class="progress-bar-container" id="player-progress-container">
+                        <div class="progress-buffered" id="player-progress-buffered"></div>
                         <div class="progress-filled" id="player-progress-filled"></div>
+                        <div class="player-time-tooltip" id="player-time-tooltip">0:00</div>
                     </div>
                 </div>
                 

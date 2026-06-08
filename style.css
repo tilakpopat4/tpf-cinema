@@ -677,6 +677,7 @@ header.scrolled {
     width: 100%;
     height: 100%;
     position: relative;
+    overflow: hidden;
 }
 
 .player-container video {
@@ -685,70 +686,148 @@ header.scrolled {
     object-fit: contain;
 }
 
+/* Netflix-Style Top and Bottom Gradient Overlays */
+.player-top-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 160px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    z-index: 9;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.player-bottom-gradient {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 220px;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+    z-index: 9;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.player-container:hover .player-top-gradient,
+.player-container.controls-active .player-top-gradient,
+.player-container:hover .player-bottom-gradient,
+.player-container.controls-active .player-bottom-gradient {
+    opacity: 1;
+}
+
 /* Custom Controls Skin */
 .player-controls {
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 70%, transparent 100%);
-    padding: 2rem;
+    padding: 2.5rem 3.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    transform: translateY(15px);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
     z-index: 10;
+    pointer-events: none;
 }
 
 .player-container:hover .player-controls,
 .player-container.controls-active .player-controls {
     opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 .progress-area {
     display: flex;
     flex-direction: column;
+    position: relative;
 }
 
 .progress-bar-container {
-    height: 6px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.25);
     position: relative;
     cursor: pointer;
-    transition: height 0.1s ease;
+    transition: height 0.15s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .progress-bar-container:hover {
-    height: 10px;
+    height: 8px;
+}
+
+.progress-buffered {
+    height: 100%;
+    background: rgba(255, 255, 255, 0.25);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    z-index: 1;
+    pointer-events: none;
+    transition: width 0.15s ease;
 }
 
 .progress-filled {
     height: 100%;
     background: var(--accent);
-    border-radius: 4px;
     width: 0%;
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 2;
+    pointer-events: none;
 }
 
 .progress-filled::after {
     content: '';
     position: absolute;
-    right: -6px;
+    right: -7px;
     top: 50%;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
-    background: #fff;
+    transform: translateY(-50%) scale(0);
+    width: 14px;
+    height: 14px;
+    background: var(--accent);
     border-radius: 50%;
-    box-shadow: 0 0 10px var(--accent);
-    opacity: 0;
-    transition: opacity 0.1s ease;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+    transition: transform 0.15s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 3;
 }
 
 .progress-bar-container:hover .progress-filled::after {
+    transform: translateY(-50%) scale(1);
+}
+
+/* Time Tooltip Bubble */
+.player-time-tooltip {
+    position: absolute;
+    bottom: 18px;
+    transform: translateX(-50%);
+    background: rgba(15, 15, 15, 0.95);
+    color: #fff;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s ease, bottom 0.15s ease;
+    font-family: var(--font-sans);
+    white-space: nowrap;
+    z-index: 50;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar-container:hover .player-time-tooltip {
     opacity: 1;
+    bottom: 22px;
 }
 
 .controls-row {
@@ -760,7 +839,7 @@ header.scrolled {
 .controls-left, .controls-right {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.75rem;
 }
 
 .control-btn {
@@ -775,29 +854,39 @@ header.scrolled {
 }
 
 .control-btn:hover {
-    color: var(--accent);
-    transform: scale(1.1);
+    color: #fff;
+    transform: scale(1.15);
 }
 
 .time-display {
-    font-size: 0.9rem;
-    color: var(--text-muted);
+    font-size: 0.95rem;
+    color: #ccc;
     font-family: var(--font-sans);
+    letter-spacing: 0.5px;
 }
 
 .volume-container {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0;
 }
 
 .volume-slider {
-    width: 80px;
+    width: 0px;
     height: 4px;
     -webkit-appearance: none;
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     outline: none;
+    opacity: 0;
+    transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
+    overflow: hidden;
+}
+
+.volume-container:hover .volume-slider {
+    width: 85px;
+    opacity: 1;
+    margin-left: 0.75rem;
 }
 
 .volume-slider::-webkit-slider-thumb {
@@ -810,33 +899,131 @@ header.scrolled {
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
 }
 
-.close-player-btn {
+/* Netflix-Style Top Header */
+.player-header {
     position: absolute;
     top: 2rem;
-    left: 2rem;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--border-glass);
-    color: #fff;
-    width: 50px;
-    height: 50px;
+    left: 3.5rem;
+    right: 3.5rem;
+    display: flex;
+    align-items: center;
+    z-index: 20;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+}
+
+.player-container:hover .player-header,
+.player-container.controls-active .player-header {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.close-player-btn {
+    pointer-events: auto;
+    padding: 0.5rem;
     border-radius: 50%;
+    width: 48px;
+    height: 48px;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: var(--transition-fast);
+    color: #fff;
     cursor: pointer;
-    z-index: 20;
-    transition: var(--transition-smooth);
-    opacity: 0;
 }
 
-.player-container:hover .close-player-btn,
-.player-container.controls-active .close-player-btn {
-    opacity: 1;
+.close-player-btn i {
+    font-size: 1.6rem;
 }
 
 .close-player-btn:hover {
     background: var(--accent);
+    border-color: var(--accent);
     transform: scale(1.1);
+    color: #fff;
+}
+
+#player-title {
+    margin-left: 1.75rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: #fff;
+    font-family: var(--font-sans);
+    white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+    letter-spacing: 0.5px;
+}
+
+/* Netflix-Style Center Controls */
+.center-controls-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    z-index: 15;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+}
+
+.player-container:hover .center-controls-container,
+.player-container.controls-active .center-controls-container {
+    opacity: 1;
+}
+
+.center-control-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    color: #fff;
+    font-size: 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    position: relative;
+    outline: none;
+}
+
+.center-control-btn:hover {
+    background: rgba(0, 0, 0, 0.75);
+    border-color: #fff;
+    transform: scale(1.1);
+}
+
+.center-play-btn {
+    width: 88px;
+    height: 88px;
+    font-size: 2.5rem;
+    border-color: rgba(255, 255, 255, 0.4);
+}
+
+.center-play-btn:hover {
+    transform: scale(1.15);
+}
+
+.center-control-num {
+    position: absolute;
+    font-size: 0.7rem;
+    font-weight: 700;
+    top: 53%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--font-sans);
+    color: #fff;
+    pointer-events: none;
 }
 
 /* Animations */
