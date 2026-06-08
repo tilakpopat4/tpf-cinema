@@ -1167,6 +1167,10 @@ function launchVideoPlayer(movie, isTrailer = false) {
     // Reset Center Play Trigger state
     const centerPlayTrigger = document.getElementById('player-center-play-trigger');
     const centerPlayIcon = document.getElementById('center-play-icon');
+    const centerControls = document.getElementById('player-center-controls');
+    if (centerControls) {
+        centerControls.style.display = 'flex';
+    }
     if (centerPlayTrigger) {
         centerPlayTrigger.style.opacity = '';
         centerPlayTrigger.style.transform = '';
@@ -1318,6 +1322,7 @@ function launchVideoPlayer(movie, isTrailer = false) {
         nativeVideo.style.display = 'none';
         nativeVideo.src = '';
         if (ytWrapper) ytWrapper.style.display = 'block';
+        if (centerControls) centerControls.style.display = 'none';
         initYouTubePlayer(youtubeId);
     } else {
         if (ytPlayer) {
@@ -1510,6 +1515,8 @@ nativeVideo.addEventListener('error', (e) => {
                 driveWrapper.style.display = 'block';
                 nativeVideo.style.display = 'none';
                 playerControls.style.display = 'none';
+                const centerControls = document.getElementById('player-center-controls');
+                if (centerControls) centerControls.style.display = 'none';
                 
                 if (playerHeader) {
                     playerHeader.style.opacity = '1';
