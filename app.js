@@ -942,87 +942,42 @@ function openDetailsModal(movie, clickedCard = null) {
     const modalBody = modalContent.querySelector('.modal-body');
     const modalCloseBtn = modalContent.querySelector('.close-btn');
 
-    if (clickedCard) {
-        // Retrieve card coordinates
-        const rect = clickedCard.getBoundingClientRect();
-        
-        // Disable page scroll temporarily
-        document.body.style.overflow = 'hidden';
-        
-        // Position modalContent exactly over the clicked card initially
-        modalContent.style.transition = 'none';
-        modalContent.style.position = 'fixed';
-        modalContent.style.top = `${rect.top}px`;
-        modalContent.style.left = `${rect.left}px`;
-        modalContent.style.width = `${rect.width}px`;
-        modalContent.style.height = `${rect.height}px`;
-        modalContent.style.borderRadius = '12px';
-        modalContent.style.opacity = '0';
-        modalContent.style.overflow = 'hidden';
-        
-        // Hide details info/text elements initially to avoid stretching layout text during transition
-        if (modalHeroContent) modalHeroContent.style.opacity = '0';
-        if (modalBody) modalBody.style.opacity = '0';
-        if (modalCloseBtn) modalCloseBtn.style.opacity = '0';
-        
-        // Activate overlay
-        detailsModal.classList.add('active');
-        
-        // Force reflow
-        modalContent.offsetHeight;
-        
-        // Morph the modal Content to cover the full viewport
-        modalContent.style.transition = 'all 0.65s cubic-bezier(0.16, 1, 0.3, 1)';
-        modalContent.style.opacity = '1';
-        modalContent.style.top = '0px';
-        modalContent.style.left = '0px';
-        modalContent.style.width = '100vw';
-        modalContent.style.height = '100vh';
-        modalContent.style.borderRadius = '0px';
-        
-        // Fade in details info elements once expansion is nearly complete
-        setTimeout(() => {
-            if (modalHeroContent) {
-                modalHeroContent.style.transition = 'opacity 0.4s ease';
-                modalHeroContent.style.opacity = '1';
-            }
-            if (modalBody) {
-                modalBody.style.transition = 'opacity 0.4s ease';
-                modalBody.style.opacity = '1';
-            }
-            if (modalCloseBtn) {
-                modalCloseBtn.style.transition = 'opacity 0.4s ease';
-                modalCloseBtn.style.opacity = '1';
-            }
-            modalContent.style.overflowY = 'auto';
-        }, 450);
-    } else {
-        // Fallback standard animation if no card coordinates passed
-        modalContent.style.position = 'fixed';
-        modalContent.style.top = '0px';
-        modalContent.style.left = '0px';
-        modalContent.style.width = '100vw';
-        modalContent.style.height = '100vh';
-        modalContent.style.borderRadius = '0px';
-        if (modalHeroContent) modalHeroContent.style.opacity = '1';
-        if (modalBody) modalBody.style.opacity = '1';
-        if (modalCloseBtn) modalCloseBtn.style.opacity = '1';
-        
-        detailsModal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-    }
+    // Disable page scroll temporarily
+    document.body.style.overflow = 'hidden';
+    
+    // Reset styles to clean, professional fade/scale-in
+    modalContent.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+    modalContent.style.position = 'fixed';
+    modalContent.style.top = '0px';
+    modalContent.style.left = '0px';
+    modalContent.style.width = '100vw';
+    modalContent.style.height = '100vh';
+    modalContent.style.borderRadius = '0px';
+    modalContent.style.transform = 'scale(0.95)';
+    modalContent.style.opacity = '0';
+    modalContent.style.overflowY = 'auto';
+    
+    if (modalHeroContent) modalHeroContent.style.opacity = '1';
+    if (modalBody) modalBody.style.opacity = '1';
+    if (modalCloseBtn) modalCloseBtn.style.opacity = '1';
+    
+    // Activate overlay
+    detailsModal.classList.add('active');
+    
+    // Force reflow
+    modalContent.offsetHeight;
+    
+    // Animate in
+    modalContent.style.transform = 'scale(1)';
+    modalContent.style.opacity = '1';
 }
 
 function closeDetailsModal() {
     const modalContent = detailsModal.querySelector('.modal-content');
-    const modalHeroContent = modalContent.querySelector('.modal-hero-content');
-    const modalBody = modalContent.querySelector('.modal-body');
-    const modalCloseBtn = modalContent.querySelector('.close-btn');
     
-    // Fade out textual content first
-    if (modalHeroContent) modalHeroContent.style.opacity = '0';
-    if (modalBody) modalBody.style.opacity = '0';
-    if (modalCloseBtn) modalCloseBtn.style.opacity = '0';
+    modalContent.style.transition = 'all 0.35s cubic-bezier(0.16, 1, 0.3, 1)';
+    modalContent.style.transform = 'scale(0.95)';
+    modalContent.style.opacity = '0';
     
     // Fade out overlay
     detailsModal.classList.remove('active');
@@ -1038,12 +993,9 @@ function closeDetailsModal() {
         modalContent.style.height = '';
         modalContent.style.borderRadius = '';
         modalContent.style.opacity = '';
+        modalContent.style.transform = '';
         modalContent.style.overflowY = '';
-        
-        if (modalHeroContent) modalHeroContent.style.opacity = '';
-        if (modalBody) modalBody.style.opacity = '';
-        if (modalCloseBtn) modalCloseBtn.style.opacity = '';
-    }, 650);
+    }, 400);
 }
 
 closeDetailsBtn.addEventListener('click', closeDetailsModal);
@@ -1142,6 +1094,7 @@ function launchVideoPlayer(movie, isTrailer = false) {
     const targetUrl = isTrailer ? (movie.trailerUrl || movie.videoUrl) : defaultVideoUrl;
     const isGoogleDrive = targetUrl && (targetUrl.includes('drive.google.com') || targetUrl.includes('docs.google.com') || targetUrl.includes('drive.usercontent.google.com') || targetUrl.includes('googleusercontent.com'));
     
+    const driveWrapper = document.getElementById('drive-iframe-wrapper');
     const driveIframe = document.getElementById('drive-video-iframe');
     const playerControls = document.querySelector('.player-controls');
     
@@ -1166,20 +1119,27 @@ function launchVideoPlayer(movie, isTrailer = false) {
         
         if (fileId) {
             driveIframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-            driveIframe.style.display = 'block';
+            driveWrapper.style.display = 'block';
             nativeVideo.style.display = 'none';
             playerControls.style.display = 'none';
             nativeVideo.src = '';
+            
+            // Force close button to remain visible over the iframe
+            closePlayerBtn.style.opacity = '1';
+            closePlayerBtn.style.pointerEvents = 'auto';
         } else {
-            driveIframe.style.display = 'none';
+            driveWrapper.style.display = 'none';
             driveIframe.src = '';
             nativeVideo.style.display = 'block';
             playerControls.style.display = 'flex';
             nativeVideo.src = targetUrl;
             nativeVideo.play().catch(() => {});
+            
+            closePlayerBtn.style.opacity = '';
+            closePlayerBtn.style.pointerEvents = '';
         }
     } else {
-        driveIframe.style.display = 'none';
+        driveWrapper.style.display = 'none';
         driveIframe.src = '';
         nativeVideo.style.display = 'block';
         playerControls.style.display = 'flex';
@@ -1193,6 +1153,9 @@ function launchVideoPlayer(movie, isTrailer = false) {
                 console.log("Auto-play blocked or source issue, waiting for user trigger:", err);
                 playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
             });
+            
+        closePlayerBtn.style.opacity = '';
+        closePlayerBtn.style.pointerEvents = '';
     }
         
     videoPlayerOverlay.classList.add('active');
@@ -1226,11 +1189,16 @@ function switchVideoQuality(res, url) {
 function closeVideoPlayer() {
     nativeVideo.pause();
     nativeVideo.src = "";
+    const driveWrapper = document.getElementById('drive-iframe-wrapper');
     const driveIframe = document.getElementById('drive-video-iframe');
+    if (driveWrapper) {
+        driveWrapper.style.display = "none";
+    }
     if (driveIframe) {
         driveIframe.src = "";
-        driveIframe.style.display = "none";
     }
+    closePlayerBtn.style.opacity = '';
+    closePlayerBtn.style.pointerEvents = '';
     videoPlayerOverlay.classList.remove('active');
     document.exitFullscreen().catch(() => {}); // exit fullscreen if active
 }
