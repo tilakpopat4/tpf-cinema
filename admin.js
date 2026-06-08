@@ -186,15 +186,22 @@ function initLocalFilePickers() {
     });
 
     // Attach auto Drive URL converter to static inputs
-    const driveInputs = ['form-backdrop', 'form-portrait', 'form-video', 'form-video-720', 'form-video-360', 'form-video-4k', 'form-trailer', 'form-studio-logo'];
-    driveInputs.forEach(id => {
+    const imageInputs = ['form-backdrop', 'form-portrait', 'form-studio-logo'];
+    const videoInputs = ['form-video', 'form-video-720', 'form-video-360', 'form-video-4k', 'form-trailer'];
+    
+    imageInputs.forEach(id => {
         const el = document.getElementById(id);
-        if (el) setupDriveAutoConverter(el);
+        if (el) setupDriveAutoConverter(el, true);
+    });
+    
+    videoInputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) setupDriveAutoConverter(el, false);
     });
 }
 
-// Convert shareable Google Drive URLs to Direct streaming URLs
-function convertGoogleDriveLink(url) {
+// Convert shareable Google Drive URLs to Direct streaming/viewing URLs
+function convertGoogleDriveLink(url, isImage = false) {
     if (!url) return '';
     const trimmed = url.trim();
     
@@ -215,18 +222,22 @@ function convertGoogleDriveLink(url) {
     }
     
     if (fileId) {
-        return `https://docs.google.com/uc?export=download&id=${fileId}`;
+        if (isImage) {
+            return `https://drive.google.com/uc?export=view&id=${fileId}`;
+        } else {
+            return `https://drive.google.com/uc?export=download&id=${fileId}`;
+        }
     }
     return trimmed;
 }
 
-function setupDriveAutoConverter(input) {
+function setupDriveAutoConverter(input, isImage = false) {
     input.addEventListener('blur', () => {
-        input.value = convertGoogleDriveLink(input.value);
+        input.value = convertGoogleDriveLink(input.value, isImage);
     });
     input.addEventListener('paste', () => {
         setTimeout(() => {
-            input.value = convertGoogleDriveLink(input.value);
+            input.value = convertGoogleDriveLink(input.value, isImage);
         }, 50);
     });
 }
@@ -258,6 +269,7 @@ function addCastRow(name = '', avatar = '') {
         const file = e.target.files[0];
         handleCloudOrLocalUpload(file, avatarInput);
     });
+    setupDriveAutoConverter(avatarInput, true);
     
     // Remove button handler
     row.querySelector('.remove-cast-row-btn').addEventListener('click', () => {
