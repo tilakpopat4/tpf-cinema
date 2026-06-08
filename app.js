@@ -234,8 +234,80 @@ const MOVIE_CATALOG = [
     }
 ];
 
+function sanitizeCatalogLinks(catalog) {
+    if (!Array.isArray(catalog)) return catalog;
+    
+    const reg1 = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+    const reg2 = /[?&]id=([a-zA-Z0-9_-]+)/;
+    const reg3 = /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/;
+    
+    function cleanLink(url, isImage = false) {
+        if (!url || typeof url !== 'string') return url;
+        const trimmed = url.trim();
+        
+        let fileId = '';
+        if (reg1.test(trimmed)) {
+            fileId = trimmed.match(reg1)[1];
+        } else if (reg3.test(trimmed)) {
+            fileId = trimmed.match(reg3)[1];
+        } else if (reg2.test(trimmed)) {
+            fileId = trimmed.match(reg2)[1];
+        }
+        
+        // Also match old export=download docs.google.com/drive.google.com URLs that were already saved
+        const oldDocsMatch = trimmed.match(/docs\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        const oldDriveMatch = trimmed.match(/drive\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        if (oldDocsMatch) fileId = oldDocsMatch[1];
+        if (oldDriveMatch) fileId = oldDriveMatch[1];
+
+        if (fileId) {
+            if (isImage) {
+                return `https://lh3.googleusercontent.com/d/${fileId}`;
+            } else {
+                return `https://drive.google.com/uc?export=download&id=${fileId}`;
+            }
+        }
+        return trimmed;
+    }
+    
+    return catalog.map(movie => {
+        // Sanitize static image fields
+        movie.backdrop = cleanLink(movie.backdrop, true);
+        movie.portraitPoster = cleanLink(movie.portraitPoster, true);
+        movie.studioLogo = cleanLink(movie.studioLogo, true);
+        
+        // Sanitize cast avatars
+        if (Array.isArray(movie.cast)) {
+            movie.cast = movie.cast.map(c => ({
+                name: c.name,
+                avatar: cleanLink(c.avatar, true)
+            }));
+        }
+        
+        // Sanitize video links
+        if (movie.qualities) {
+            movie.qualities['1080p'] = cleanLink(movie.qualities['1080p'], false);
+            movie.qualities['720p'] = cleanLink(movie.qualities['720p'], false);
+            movie.qualities['360p'] = cleanLink(movie.qualities['360p'], false);
+            movie.qualities['4k'] = cleanLink(movie.qualities['4k'], false);
+        }
+        movie.videoUrl = cleanLink(movie.videoUrl, false);
+        movie.trailerUrl = cleanLink(movie.trailerUrl, false);
+        
+        // Sanitize episodes if any
+        if (Array.isArray(movie.episodes)) {
+            movie.episodes = movie.episodes.map(ep => ({
+                ...ep,
+                videoUrl: cleanLink(ep.videoUrl, false)
+            }));
+        }
+        
+        return movie;
+    });
+}
+
 // 2. Mutable Dynamic Movie State Synced with LocalStorage and Firebase Cloud
-let movies = JSON.parse(localStorage.getItem('tpf_catalog')) || [...MOVIE_CATALOG];
+let movies = sanitizeCatalogLinks(JSON.parse(localStorage.getItem('tpf_catalog')) || [...MOVIE_CATALOG]);
 let featuredMovieId = localStorage.getItem('tpf_featured_id') || "tpf-01";
 
 // Categories Grouping (Dynamically filters the mutable list)
@@ -287,8 +359,8 @@ async function syncDatabaseFromFirebase() {
         const cloudCatalog = await response.json();
         
         if (Array.isArray(cloudCatalog) && cloudCatalog.length > 0) {
-            movies = cloudCatalog;
-            localStorage.setItem('tpf_catalog', JSON.stringify(cloudCatalog));
+            movies = sanitizeCatalogLinks(cloudCatalog);
+            localStorage.setItem('tpf_catalog', JSON.stringify(movies));
             
             // Re-sync featured hero status
             featuredMovieId = localStorage.getItem('tpf_featured_id') || movies[0].id;
