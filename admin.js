@@ -282,11 +282,21 @@ function toggleTypeFields(type) {
         seriesEpisodesGroup.style.display = 'block';
         formVideo.required = false;
         formTrailer.required = false;
+        
+        // Enable required validation on episode inputs
+        episodesContainer.querySelectorAll('.episode-title, .episode-duration, .episode-video').forEach(input => {
+            input.required = true;
+        });
     } else {
         movieMediaFieldsGroup.style.display = 'grid';
         seriesEpisodesGroup.style.display = 'none';
         formVideo.required = true;
         formTrailer.required = true;
+        
+        // Disable required validation on episode inputs
+        episodesContainer.querySelectorAll('.episode-title, .episode-duration, .episode-video').forEach(input => {
+            input.required = false;
+        });
     }
 }
 
@@ -296,11 +306,13 @@ function addEpisodeRow(title = '', videoUrl = '', duration = '') {
     row.className = 'episode-row';
     row.style.cssText = 'display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;';
     
+    const isRequired = formType.value === 'series' ? 'required' : '';
+    
     row.innerHTML = `
-        <input type="text" placeholder="Episode Title" class="episode-title" value="${title}" required style="flex: 1; padding: 0.6rem;">
-        <input type="text" placeholder="Duration (e.g. 45m)" class="episode-duration" value="${duration}" required style="width: 100px; padding: 0.6rem;">
+        <input type="text" placeholder="Episode Title" class="episode-title" value="${title}" ${isRequired} style="flex: 1; padding: 0.6rem;">
+        <input type="text" placeholder="Duration (e.g. 45m)" class="episode-duration" value="${duration}" ${isRequired} style="width: 100px; padding: 0.6rem;">
         <div style="display: flex; gap: 0.4rem; align-items: center; flex: 1.5;">
-            <input type="text" placeholder="Video Link or upload..." class="episode-video" value="${videoUrl}" required style="flex: 1; padding: 0.6rem;">
+            <input type="text" placeholder="Video Link or upload..." class="episode-video" value="${videoUrl}" ${isRequired} style="flex: 1; padding: 0.6rem;">
             <label class="file-upload-btn" style="background: rgba(255,255,255,0.06); padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px dashed var(--border-glass); cursor: pointer; color: var(--text-main); font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
                 <i class="fa-solid fa-cloud-arrow-up"></i>
                 <input type="file" accept="video/*" class="local-episode-video-picker" style="display: none;">
