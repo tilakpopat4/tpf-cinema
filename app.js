@@ -251,13 +251,31 @@ const CATEGORIES = [
 let currentSelectedMovie = movies.find(m => m.id === featuredMovieId) || movies[0];
 let watchlist = JSON.parse(localStorage.getItem('tpf_watchlist')) || [];
 
+const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCm_d7Sp5HZ3UIx9oFW5sp82QGWVSPljBw",
+    authDomain: "tpf-cinema-d0c81.firebaseapp.com",
+    projectId: "tpf-cinema-d0c81",
+    storageBucket: "tpf-cinema-d0c81.firebasestorage.app",
+    appId: "1:93228732295:web:b6464fb44229541ba68d22"
+};
+
 // Firebase database initialization and sync helper
 async function syncDatabaseFromFirebase() {
     const configStr = localStorage.getItem('tpf_firebase_config');
-    if (!configStr) return;
+    let config = null;
+    if (configStr) {
+        try {
+            config = JSON.parse(configStr);
+        } catch (e) {
+            console.error("Failed to parse config from localStorage:", e);
+        }
+    }
+    
+    if (!config) {
+        config = DEFAULT_FIREBASE_CONFIG;
+    }
     
     try {
-        const config = JSON.parse(configStr);
         if (firebase.apps.length === 0) {
             firebase.initializeApp(config);
         }

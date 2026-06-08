@@ -665,25 +665,51 @@ if (fbClearConfig) {
     });
 }
 
+const DEFAULT_FIREBASE_CONFIG = {
+    apiKey: "AIzaSyCm_d7Sp5HZ3UIx9oFW5sp82QGWVSPljBw",
+    authDomain: "tpf-cinema-d0c81.firebaseapp.com",
+    projectId: "tpf-cinema-d0c81",
+    storageBucket: "tpf-cinema-d0c81.firebasestorage.app",
+    appId: "1:93228732295:web:b6464fb44229541ba68d22"
+};
+
 function loadFirebaseConfigFields() {
     const configStr = localStorage.getItem('tpf_firebase_config');
+    let config = DEFAULT_FIREBASE_CONFIG;
     if (configStr) {
-        const config = JSON.parse(configStr);
-        document.getElementById('fb-api-key').value = config.apiKey || '';
-        document.getElementById('fb-auth-domain').value = config.authDomain || '';
-        document.getElementById('fb-project-id').value = config.projectId || '';
-        document.getElementById('fb-storage-bucket').value = config.storageBucket || '';
-        document.getElementById('fb-app-id').value = config.appId || '';
+        try {
+            config = JSON.parse(configStr);
+        } catch (e) {
+            console.error("Failed to parse config from localStorage:", e);
+        }
     }
+    document.getElementById('fb-api-key').value = config.apiKey || '';
+    document.getElementById('fb-auth-domain').value = config.authDomain || '';
+    document.getElementById('fb-project-id').value = config.projectId || '';
+    document.getElementById('fb-storage-bucket').value = config.storageBucket || '';
+    document.getElementById('fb-app-id').value = config.appId || '';
 }
 
 function initFirebaseCloud() {
     const statStorageSync = document.getElementById('stat-storage-sync');
     const configStr = localStorage.getItem('tpf_firebase_config');
+    let config = null;
     
     if (configStr) {
         try {
-            const config = JSON.parse(configStr);
+            config = JSON.parse(configStr);
+        } catch (e) {
+            console.error("Failed to parse config from localStorage:", e);
+        }
+    }
+    
+    // Fall back to default hardcoded config if none is stored
+    if (!config) {
+        config = DEFAULT_FIREBASE_CONFIG;
+    }
+    
+    if (config) {
+        try {
             // Re-initialize only if Firebase isn't already active
             if (firebase.apps.length === 0) {
                 firebase.initializeApp(config);
