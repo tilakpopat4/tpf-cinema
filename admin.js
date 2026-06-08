@@ -223,7 +223,7 @@ function convertGoogleDriveLink(url, isImage = false) {
     
     if (fileId) {
         if (isImage) {
-            return `https://drive.google.com/uc?export=view&id=${fileId}`;
+            return `https://lh3.googleusercontent.com/d/${fileId}`;
         } else {
             return `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
