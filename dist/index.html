@@ -4,49 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TPF Cinema — Streaming Premium Independent & Classic Cinema</title>
-    <meta name="description" content="Immerse yourself in TPF Cinema. Stream the finest selection of curated independent movies, sci-fi masterpieces, and emotional dramas with premium ultra-responsive playback.">
+    <meta name="description" content="Immerse yourself in TPF Cinema. Stream the finest selection of curated independent movies, sci-fi masterpieces, and emotional dramas with premium ultra-responsive playback.">
     <!-- Font Awesome for premium icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script type="module" crossorigin src="/assets/main-Ci9aTPDE.js"></script>
+    <!-- Google Sign-In Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script type="module" crossorigin src="/assets/main-CERwOTDu.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/style-B3qAdzCd.js">
   <link rel="stylesheet" crossorigin href="/assets/style-De52Nqsg.css">
 </head>
 <body>
 
-    <!-- Glassmorphic Registration Gate Overlay -->
+    <!-- Glassmorphic Login / Signup Gate Overlay -->
     <div class="auth-gate" id="auth-gate">
-        <div class="auth-card" style="max-width: 420px; padding: 2.5rem;">
-            <div class="auth-logo" style="margin-bottom: 0.5rem;">
+        <div class="auth-card">
+            <div class="auth-logo">
                 <i class="fa-solid fa-clapperboard"></i> TPF <span>CINEMA</span>
             </div>
-            <p class="auth-subtitle" style="margin-bottom: 1.5rem;">Create a quick profile to unlock premium independent films, web series, and cinematic releases.</p>
+            <p class="auth-subtitle">Unlock premium independent films, sci-fi epics, and award-winning dramas.</p>
             
-            <form id="custom-registration-form" action="https://api.web3forms.com/submit" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
-                <!-- Web3Forms API Key to deliver submissions directly to user email -->
-                <input type="hidden" name="access_key" value="ea1d911b-fbdb-441f-bb7e-f51950d2cf39">
-                <input type="hidden" name="subject" value="TPF Cinema - New User Registration">
-                <input type="hidden" name="from_name" value="TPF Cinema Portal">
-                <input type="hidden" name="to_email" value="work.tilakpopatfilms@gmail.com">
-                
-                <div class="form-group" style="text-align: left; display: flex; flex-direction: column; gap: 0.4rem;">
-                    <label for="reg-name" style="font-size: 0.85rem; color: var(--text-muted);">Your Name</label>
-                    <input type="text" id="reg-name" name="name" placeholder="John Doe" required style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; box-sizing: border-box; font-family: var(--font-sans);">
+            <div class="auth-actions-area">
+                <!-- Native Google OAuth sign-in button mounting point -->
+                <div id="g_id_onload"
+                     data-client_id="891970740308-84cu71vlmej4tducr7ca06hahk8bb8s6.apps.googleusercontent.com"
+                     data-context="signin"
+                     data-ux_mode="popup"
+                     data-callback="handleGoogleLogin"
+                     data-auto_select="false"
+                     data-itp_support="true">
+                </div>
+                <div class="g_id_signin"
+                     data-type="standard"
+                     data-shape="pill"
+                     data-theme="filled_blue"
+                     data-text="signin_with"
+                     data-size="large"
+                     data-logo_alignment="left">
                 </div>
 
-                <div class="form-group" style="text-align: left; display: flex; flex-direction: column; gap: 0.4rem;">
-                    <label for="reg-email" style="font-size: 0.85rem; color: var(--text-muted);">Email Address</label>
-                    <input type="email" id="reg-email" name="email" placeholder="john@example.com" required style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; box-sizing: border-box; font-family: var(--font-sans);">
+                <div class="auth-divider">
+                    <span>or continue as guest</span>
                 </div>
 
-                <div class="form-group" style="text-align: left; display: flex; flex-direction: column; gap: 0.4rem;">
-                    <label for="reg-phone" style="font-size: 0.85rem; color: var(--text-muted);">Mobile Number</label>
-                    <input type="tel" id="reg-phone" name="phone" placeholder="+91 98765 43210" required style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--border-glass); color: #fff; padding: 0.75rem; border-radius: 8px; outline: none; box-sizing: border-box; font-family: var(--font-sans);">
-                </div>
-
-                <button type="submit" class="btn btn-primary" id="reg-submit-btn" style="width: 100%; justify-content: center; margin-top: 0.5rem; height: 45px;">
-                    <i class="fa-solid fa-circle-play"></i> Register & Enter
+                <button class="btn btn-secondary" id="demo-login-btn" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-user-shield"></i> Demo Login (Quick Access)
                 </button>
-            </form>
+            </div>
+            
+            <div class="auth-footer">
+                By signing in, you agree to our Terms of Service & Privacy Policy.
+            </div>
         </div>
     </div>
 
@@ -282,6 +289,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
-    <!-- Core App Logic -->
+    <!-- Core App Logic -->
 </body>
 </html>
