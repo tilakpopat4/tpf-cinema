@@ -522,16 +522,42 @@ movieEditorForm.addEventListener('submit', (e) => {
 
     // Save modifications to localStorage database catalog
     localStorage.setItem('tpf_catalog', JSON.stringify(movies));
+    syncCatalogToFirebaseCloud();
     
     movieFormModal.classList.remove('active');
     syncCatalogTable();
 });
+
+// Helper to write complete database catalog JSON to Firebase Cloud Storage
+function syncCatalogToFirebaseCloud() {
+    if (!firebaseStorage) {
+        console.log("Local database saved. Cloud Sync is disabled.");
+        return;
+    }
+    
+    try {
+        const json = JSON.stringify(movies);
+        const blob = new Blob([json], { type: 'application/json' });
+        
+        const storageRef = firebaseStorage.ref();
+        const catalogRef = storageRef.child('tpf-cinema/database/catalog.json');
+        
+        catalogRef.put(blob).then(() => {
+            console.log("Database catalog JSON synced to Firebase Storage successfully.");
+        }).catch(err => {
+            console.error("Firebase Storage database sync failure:", err);
+        });
+    } catch (error) {
+        console.error("JSON serialization failed:", error);
+    }
+}
 
 // 9. Delete movie handler
 function deleteMoviePrompt(id) {
     if (confirm("Are you sure you want to delete this movie item from the TPF Cinema catalog?")) {
         movies = movies.filter(m => m.id !== id);
         localStorage.setItem('tpf_catalog', JSON.stringify(movies));
+        syncCatalogToFirebaseCloud();
         
         syncCatalogTable();
         
@@ -563,6 +589,7 @@ saveHeroSelection.addEventListener('click', () => {
     if (selectedId) {
         featuredMovieId = selectedId;
         localStorage.setItem('tpf_featured_id', selectedId);
+        syncCatalogToFirebaseCloud();
         
         const selectedMovie = movies.find(m => m.id === selectedId);
         if (selectedMovie) {

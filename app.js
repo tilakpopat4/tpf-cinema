@@ -234,7 +234,7 @@ const MOVIE_CATALOG = [
     }
 ];
 
-// 2. Mutable Dynamic Movie State Synced with LocalStorage
+// 2. Mutable Dynamic Movie State Synced with LocalStorage and Firebase Cloud
 let movies = JSON.parse(localStorage.getItem('tpf_catalog')) || [...MOVIE_CATALOG];
 let featuredMovieId = localStorage.getItem('tpf_featured_id') || "tpf-01";
 
@@ -250,6 +250,38 @@ const CATEGORIES = [
 // App State
 let currentSelectedMovie = movies.find(m => m.id === featuredMovieId) || movies[0];
 let watchlist = JSON.parse(localStorage.getItem('tpf_watchlist')) || [];
+
+// Firebase database initialization and sync helper
+async function syncDatabaseFromFirebase() {
+    const configStr = localStorage.getItem('tpf_firebase_config');
+    if (!configStr) return;
+    
+    try {
+        const config = JSON.parse(configStr);
+        if (firebase.apps.length === 0) {
+            firebase.initializeApp(config);
+        }
+        const storageRef = firebase.storage().ref();
+        const catalogRef = storageRef.child('tpf-cinema/database/catalog.json');
+        
+        const url = await catalogRef.getDownloadURL();
+        const response = await fetch(url);
+        const cloudCatalog = await response.json();
+        
+        if (Array.isArray(cloudCatalog) && cloudCatalog.length > 0) {
+            movies = cloudCatalog;
+            localStorage.setItem('tpf_catalog', JSON.stringify(cloudCatalog));
+            
+            // Re-sync featured hero status
+            featuredMovieId = localStorage.getItem('tpf_featured_id') || movies[0].id;
+            currentSelectedMovie = movies.find(m => m.id === featuredMovieId) || movies[0];
+            initHero(currentSelectedMovie);
+            renderRows(movies);
+        }
+    } catch (error) {
+        console.warn("Could not sync catalog database from Firebase Storage:", error);
+    }
+}
 
 // DOM Elements
 const siteHeader = document.getElementById('site-header');
@@ -466,6 +498,7 @@ logoutBtn.addEventListener('click', () => {
 // 3. Initialize App
 window.addEventListener('DOMContentLoaded', () => {
     initAuth();
+    syncDatabaseFromFirebase();
     initHero(currentSelectedMovie);
     renderRows(movies);
     syncWatchlistUI();
