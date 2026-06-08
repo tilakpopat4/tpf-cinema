@@ -227,6 +227,9 @@
             <!-- Standard Video Tag playing our Direct/Mock Video link -->
             <video id="native-video" src="" preload="auto" controlsList="nodownload" oncontextmenu="return false;"></video>
             
+            <!-- Google Drive Iframe player fallback -->
+            <iframe id="drive-video-iframe" src="" style="display: none; border: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0;" allow="autoplay; fullscreen"></iframe>
+            
             <!-- Custom UI Skin overlaying the video tag -->
             <div class="player-controls">
                 <div class="progress-area">

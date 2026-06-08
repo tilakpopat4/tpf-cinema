@@ -1319,8 +1319,8 @@ header.scrolled {
     display: flex;
     align-items: center;
     position: relative;
-    flex: 0 0 320px;
-    height: 180px;
+    flex: 0 0 210px;
+    height: 220px;
     cursor: pointer;
     transition: var(--transition-smooth);
 }
@@ -1346,8 +1346,8 @@ header.scrolled {
 }
 
 .top10-card {
-    width: 240px;
-    height: 135px;
+    width: 135px;
+    height: 200px;
     border-radius: 8px;
     overflow: hidden;
     position: relative;

@@ -691,7 +691,7 @@ function renderRows(moviesList) {
             item.innerHTML = `
                 <div class="top10-rank">${index + 1}</div>
                 <div class="top10-card">
-                    <img src="${movie.backdrop}" alt="${movie.title}" style="width:100%; height:100%; object-fit:cover;">
+                    <img src="${movie.portraitPoster}" alt="${movie.title}" style="width:100%; height:100%; object-fit:cover;">
                     <div class="card-overlay" style="opacity: 0; background: linear-gradient(to top, rgba(8,9,10,0.95) 0%, rgba(8,9,10,0.2) 60%, transparent 100%);">
                         <h3 class="card-title" style="font-size:0.9rem;">${movie.title}</h3>
                         <div class="card-meta" style="font-size:0.75rem;">
@@ -1139,15 +1139,61 @@ function launchVideoPlayer(movie, isTrailer = false) {
         playerQualityDropdown.innerHTML = '';
     }
 
-    nativeVideo.src = isTrailer ? (movie.trailerUrl || movie.videoUrl) : defaultVideoUrl;
-    nativeVideo.play()
-        .then(() => {
-            playerPlayToggle.innerHTML = `<i class="fa-solid fa-pause" style="font-size: 1.25rem;"></i>`;
-        })
-        .catch(err => {
-            console.log("Auto-play blocked or source issue, waiting for user trigger:", err);
-            playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
-        });
+    const targetUrl = isTrailer ? (movie.trailerUrl || movie.videoUrl) : defaultVideoUrl;
+    const isGoogleDrive = targetUrl && (targetUrl.includes('drive.google.com') || targetUrl.includes('docs.google.com') || targetUrl.includes('drive.usercontent.google.com') || targetUrl.includes('googleusercontent.com'));
+    
+    const driveIframe = document.getElementById('drive-video-iframe');
+    const playerControls = document.querySelector('.player-controls');
+    
+    if (isGoogleDrive) {
+        let fileId = '';
+        const reg1 = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+        const reg2 = /[?&]id=([a-zA-Z0-9_-]+)/;
+        const reg3 = /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/;
+        
+        if (reg1.test(targetUrl)) {
+            fileId = targetUrl.match(reg1)[1];
+        } else if (reg3.test(targetUrl)) {
+            fileId = targetUrl.match(reg3)[1];
+        } else if (reg2.test(targetUrl)) {
+            fileId = targetUrl.match(reg2)[1];
+        }
+        
+        const oldDocsMatch = targetUrl.match(/docs\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        const oldDriveMatch = targetUrl.match(/drive\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        if (oldDocsMatch) fileId = oldDocsMatch[1];
+        if (oldDriveMatch) fileId = oldDriveMatch[1];
+        
+        if (fileId) {
+            driveIframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            driveIframe.style.display = 'block';
+            nativeVideo.style.display = 'none';
+            playerControls.style.display = 'none';
+            nativeVideo.src = '';
+        } else {
+            driveIframe.style.display = 'none';
+            driveIframe.src = '';
+            nativeVideo.style.display = 'block';
+            playerControls.style.display = 'flex';
+            nativeVideo.src = targetUrl;
+            nativeVideo.play().catch(() => {});
+        }
+    } else {
+        driveIframe.style.display = 'none';
+        driveIframe.src = '';
+        nativeVideo.style.display = 'block';
+        playerControls.style.display = 'flex';
+        
+        nativeVideo.src = targetUrl;
+        nativeVideo.play()
+            .then(() => {
+                playerPlayToggle.innerHTML = `<i class="fa-solid fa-pause" style="font-size: 1.25rem;"></i>`;
+            })
+            .catch(err => {
+                console.log("Auto-play blocked or source issue, waiting for user trigger:", err);
+                playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
+            });
+    }
         
     videoPlayerOverlay.classList.add('active');
     showControlsTemporarily();
@@ -1180,6 +1226,11 @@ function switchVideoQuality(res, url) {
 function closeVideoPlayer() {
     nativeVideo.pause();
     nativeVideo.src = "";
+    const driveIframe = document.getElementById('drive-video-iframe');
+    if (driveIframe) {
+        driveIframe.src = "";
+        driveIframe.style.display = "none";
+    }
     videoPlayerOverlay.classList.remove('active');
     document.exitFullscreen().catch(() => {}); // exit fullscreen if active
 }

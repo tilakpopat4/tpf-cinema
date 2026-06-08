@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Sign-In Library -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script type="module" crossorigin src="/assets/main-DBhp7u76.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/style-B3qAdzCd.js">
-  <link rel="stylesheet" crossorigin href="/assets/style-De52Nqsg.css">
+  <script type="module" crossorigin src="/assets/main-PpG0pCdR.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/style-1H2GRJN7.js">
+  <link rel="stylesheet" crossorigin href="/assets/style-DOPAE7Sl.css">
 </head>
 <body>
 
@@ -228,6 +228,9 @@
             
             <!-- Standard Video Tag playing our Direct/Mock Video link -->
             <video id="native-video" src="" preload="auto" controlsList="nodownload" oncontextmenu="return false;"></video>
+            
+            <!-- Google Drive Iframe player fallback -->
+            <iframe id="drive-video-iframe" src="" style="display: none; border: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0;" allow="autoplay; fullscreen"></iframe>
             
             <!-- Custom UI Skin overlaying the video tag -->
             <div class="player-controls">
