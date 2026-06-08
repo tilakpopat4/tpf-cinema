@@ -1089,11 +1089,10 @@ function initYouTubePlayer(videoId) {
         ytPlayer = null;
     }
     stopYtProgressTimer();
-    
     const container = document.getElementById('youtube-iframe-wrapper');
     if (container) {
         container.innerHTML = `
-            <div id="youtube-player" style="width: 104%; height: 108%; margin-left: -2%; margin-top: -2%; pointer-events: none;"></div>
+            <div id="youtube-player" style="width: 108%; height: 116%; margin-left: -4%; margin-top: -8%; pointer-events: none;"></div>
             <div class="youtube-mask" id="youtube-mask" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 6; background: transparent; cursor: pointer;"></div>
         `;
         
