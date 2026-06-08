@@ -1118,11 +1118,21 @@ function launchVideoPlayer(movie, isTrailer = false) {
     const driveIframe = document.getElementById('drive-video-iframe');
     const playerControls = document.querySelector('.player-controls');
     
+    // Always start by trying to play the stream natively in our custom Netflix player
+    driveWrapper.style.display = 'none';
+    driveIframe.src = '';
+    nativeVideo.style.display = 'block';
+    playerControls.style.display = 'flex';
+    
+    let playUrl = targetUrl;
+    
     if (isGoogleDrive) {
         let fileId = '';
         const reg1 = /\/file\/d\/([a-zA-Z0-9_-]+)/;
         const reg2 = /[?&]id=([a-zA-Z0-9_-]+)/;
         const reg3 = /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/;
+        const oldDocsMatch = targetUrl.match(/docs\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        const oldDriveMatch = targetUrl.match(/drive\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
         
         if (reg1.test(targetUrl)) {
             fileId = targetUrl.match(reg1)[1];
@@ -1130,65 +1140,31 @@ function launchVideoPlayer(movie, isTrailer = false) {
             fileId = targetUrl.match(reg3)[1];
         } else if (reg2.test(targetUrl)) {
             fileId = targetUrl.match(reg2)[1];
+        } else if (oldDocsMatch) {
+            fileId = oldDocsMatch[1];
+        } else if (oldDriveMatch) {
+            fileId = oldDriveMatch[1];
         }
-        
-        const oldDocsMatch = targetUrl.match(/docs\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
-        const oldDriveMatch = targetUrl.match(/drive\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
-        if (oldDocsMatch) fileId = oldDocsMatch[1];
-        if (oldDriveMatch) fileId = oldDriveMatch[1];
         
         if (fileId) {
-            driveIframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
-            driveWrapper.style.display = 'block';
-            nativeVideo.style.display = 'none';
-            playerControls.style.display = 'none';
-            nativeVideo.src = '';
-            
-            // Force header to remain visible over the iframe
-            if (playerHeader) {
-                playerHeader.style.opacity = '1';
-                playerHeader.style.pointerEvents = 'auto';
-            }
-        } else {
-            driveWrapper.style.display = 'none';
-            driveIframe.src = '';
-            nativeVideo.style.display = 'block';
-            playerControls.style.display = 'flex';
-            nativeVideo.src = targetUrl;
-            nativeVideo.play().catch(() => {});
-            
-            if (playerHeader) {
-                playerHeader.style.opacity = '';
-                playerHeader.style.pointerEvents = '';
-            }
+            // Convert to direct stream URL so we can play it natively
+            playUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
-    } else {
-        driveWrapper.style.display = 'none';
-        driveIframe.src = '';
-        nativeVideo.style.display = 'block';
-        playerControls.style.display = 'flex';
+    }
+    
+    nativeVideo.src = playUrl;
+    nativeVideo.play()
+        .then(() => {
+            playerPlayToggle.innerHTML = `<i class="fa-solid fa-pause" style="font-size: 1.25rem;"></i>`;
+        })
+        .catch(err => {
+            console.log("Auto-play blocked or source issue, waiting for user trigger:", err);
+            playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
+        });
         
-        nativeVideo.src = targetUrl;
-        nativeVideo.play()
-            .then(() => {
-                playerPlayToggle.innerHTML = `<i class="fa-solid fa-pause" style="font-size: 1.25rem;"></i>`;
-            })
-            .catch(err => {
-                console.log("Auto-play blocked or source issue, waiting for user trigger:", err);
-                playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
-                
-                // Show center play trigger if autoplay fails
-                if (centerPlayTrigger) {
-                    centerPlayTrigger.style.opacity = '1';
-                    centerPlayTrigger.style.transform = 'translate(-50%, -50%) scale(1)';
-                    centerPlayTrigger.style.pointerEvents = 'auto';
-                }
-            });
-            
-        if (playerHeader) {
-            playerHeader.style.opacity = '';
-            playerHeader.style.pointerEvents = '';
-        }
+    if (playerHeader) {
+        playerHeader.style.opacity = '';
+        playerHeader.style.pointerEvents = '';
     }
         
     videoPlayerOverlay.classList.add('active');
@@ -1258,13 +1234,58 @@ nativeVideo.addEventListener('play', () => {
         centerPlayIcon.style.marginLeft = "0";
     }
 });
-
 nativeVideo.addEventListener('pause', () => {
     playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
     const centerPlayIcon = document.getElementById('center-play-icon');
     if (centerPlayIcon) {
         centerPlayIcon.className = "fa-solid fa-play";
         centerPlayIcon.style.marginLeft = "6px";
+    }
+});
+
+// Fallback error handler for Google Drive native streams
+nativeVideo.addEventListener('error', (e) => {
+    const currentSrc = nativeVideo.src;
+    if (currentSrc && (currentSrc.includes('drive.google.com') || currentSrc.includes('docs.google.com') || currentSrc.includes('googleusercontent.com'))) {
+        console.warn("Native video playback failed for Google Drive URL. Falling back to preview iframe.");
+        
+        let fileId = '';
+        const reg1 = /\/file\/d\/([a-zA-Z0-9_-]+)/;
+        const reg2 = /[?&]id=([a-zA-Z0-9_-]+)/;
+        const reg3 = /drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/;
+        const oldDocsMatch = currentSrc.match(/docs\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        const oldDriveMatch = currentSrc.match(/drive\.google\.com\/uc\?export=(?:download|view)&id=([a-zA-Z0-9_-]+)/);
+        
+        if (reg1.test(currentSrc)) {
+            fileId = currentSrc.match(reg1)[1];
+        } else if (reg3.test(currentSrc)) {
+            fileId = currentSrc.match(reg3)[1];
+        } else if (reg2.test(currentSrc)) {
+            fileId = currentSrc.match(reg2)[1];
+        } else if (oldDocsMatch) {
+            fileId = oldDocsMatch[1];
+        } else if (oldDriveMatch) {
+            fileId = oldDriveMatch[1];
+        }
+        
+        if (fileId) {
+            const driveWrapper = document.getElementById('drive-iframe-wrapper');
+            const driveIframe = document.getElementById('drive-video-iframe');
+            const playerControls = document.querySelector('.player-controls');
+            const playerHeader = document.getElementById('player-header');
+            
+            if (driveIframe && driveWrapper && playerControls) {
+                driveIframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+                driveWrapper.style.display = 'block';
+                nativeVideo.style.display = 'none';
+                playerControls.style.display = 'none';
+                
+                if (playerHeader) {
+                    playerHeader.style.opacity = '1';
+                    playerHeader.style.pointerEvents = 'auto';
+                }
+            }
+        }
     }
 });
 
