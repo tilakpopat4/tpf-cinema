@@ -232,6 +232,32 @@
                 </button>
                 <span id="player-title">Movie Title</span>
             </div>
+
+            <!-- Netflix-Style Paused Details Overlay -->
+            <div class="player-pause-overlay" id="player-pause-overlay">
+                <div class="pause-metadata-content">
+                    <h2 id="pause-title">Movie Title</h2>
+                    <div class="pause-badges-row">
+                        <span class="pause-badge rating-badge" id="pause-rating">8.9</span>
+                        <span class="pause-badge" id="pause-year">2026</span>
+                        <span class="pause-badge" id="pause-duration">2h 14m</span>
+                        <span class="pause-badge badge-quality">HD</span>
+                    </div>
+                    <p id="pause-description">In the silent expansion of the Orion Belt...</p>
+                    
+                    <div class="pause-meta-group">
+                        <span class="meta-label">Genres:</span>
+                        <span id="pause-genres" class="meta-value">Sci-Fi, Adventure</span>
+                    </div>
+
+                    <div class="pause-cast-section">
+                        <h3>Cast & Crew</h3>
+                        <div class="pause-cast-list" id="pause-cast-list">
+                            <!-- Dynamically loaded cast members -->
+                        </div>
+                    </div>
+                </div>
+            </div>
             
             <!-- Netflix-Style Center Controls (Rewind 10s, Play/Pause, Forward 10s) -->
             <div id="player-center-controls" class="center-controls-container">
@@ -269,13 +295,13 @@
                 <div class="controls-row">
                     <div class="controls-left">
                         <button class="control-btn" id="player-play-toggle" aria-label="Play/Pause">
-                            <i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>
+                            <i class="fa-solid fa-play"></i>
                         </button>
                         <button class="control-btn" id="player-rewind" aria-label="Rewind 10s">
-                            <i class="fa-solid fa-backward" style="font-size: 1.1rem;"></i>
+                            <i class="fa-solid fa-backward"></i>
                         </button>
                         <button class="control-btn" id="player-forward" aria-label="Forward 10s">
-                            <i class="fa-solid fa-forward" style="font-size: 1.1rem;"></i>
+                            <i class="fa-solid fa-forward"></i>
                         </button>
                         
                         <div class="volume-container">
@@ -291,19 +317,40 @@
                     </div>
                     
                     <div class="controls-right">
+                        <!-- Language (Audio/Subtitles) Selection -->
+                        <div style="position: relative;" id="player-language-container">
+                            <button class="control-btn" id="player-language-btn" aria-label="Audio & Subtitles">
+                                <i class="fa-solid fa-message"></i>
+                            </button>
+                            <div class="language-dropdown" id="player-language-dropdown" style="display: none; position: absolute; bottom: 100%; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 8px; padding: 1rem; width: 260px; box-shadow: 0 -10px 25px rgba(0,0,0,0.5); z-index: 100; margin-bottom: 0.5rem; justify-content: space-between; gap: 1rem;">
+                                <div class="lang-column" style="flex: 1;">
+                                    <h4 style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Audio</h4>
+                                    <div class="lang-list" id="player-audio-list" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                        <!-- Dynamic audio options -->
+                                    </div>
+                                </div>
+                                <div class="lang-column" style="flex: 1;">
+                                    <h4 style="margin: 0 0 0.5rem 0; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Subtitles</h4>
+                                    <div class="lang-list" id="player-subtitles-list" style="display: flex; flex-direction: column; gap: 0.3rem;">
+                                        <!-- Dynamic subtitles options -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Playback Speed Control -->
                         <div style="position: relative;">
-                            <button class="control-btn" id="player-speed-btn" style="font-size: 0.9rem; font-weight: 700;">1.0x</button>
+                            <button class="control-btn" id="player-speed-btn" style="font-weight: 700;">1.0x</button>
                         </div>
                         <!-- Video Quality Selector -->
                         <div style="position: relative;" id="player-quality-container">
-                            <button class="control-btn" id="player-quality-btn" style="font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; gap: 0.3rem;"><i class="fa-solid fa-sliders"></i> 1080p</button>
+                            <button class="control-btn" id="player-quality-btn" style="font-weight: 700; display: flex; align-items: center; gap: 0.3rem;"><i class="fa-solid fa-sliders"></i> 1080p</button>
                             <div class="quality-dropdown" id="player-quality-dropdown" style="display: none; position: absolute; bottom: 100%; right: 0; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 8px; padding: 0.5rem 0; width: 100px; box-shadow: 0 -10px 25px rgba(0,0,0,0.5); z-index: 100; margin-bottom: 0.5rem; flex-direction: column;">
                                 <!-- Dynamic Options -->
                             </div>
                         </div>
                         <button class="control-btn" id="player-fullscreen" aria-label="Toggle Fullscreen">
-                            <i class="fa-solid fa-expand" style="font-size: 1.15rem;"></i>
+                            <i class="fa-solid fa-expand"></i>
                         </button>
                     </div>
                 </div>

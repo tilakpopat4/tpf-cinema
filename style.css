@@ -1637,6 +1637,249 @@ img, video {
     -ms-user-select: none !important;
 }
 
+/* Netflix Pause Details Overlay */
+.player-pause-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(0, 0, 0, 0.88) 0%, rgba(0, 0, 0, 0.6) 45%, rgba(0, 0, 0, 0.2) 75%, transparent 100%);
+    z-index: 12;
+    display: flex;
+    align-items: center;
+    padding: 0 5rem;
+    box-sizing: border-box;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(1.02);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.player-pause-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: scale(1);
+}
+
+.pause-metadata-content {
+    max-width: 38%;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    color: #fff;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+    margin-top: 1rem;
+}
+
+#pause-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin: 0;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+    font-family: var(--font-sans);
+}
+
+.pause-badges-row {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+
+.pause-badge {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    padding: 0.2rem 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-family: var(--font-sans);
+}
+
+.pause-badge.rating-badge {
+    background: rgba(70, 180, 80, 0.2);
+    border-color: rgba(70, 180, 80, 0.4);
+    color: #46b450;
+    font-weight: 700;
+}
+
+.pause-badge.badge-quality {
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+#pause-description {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #e5e5e5;
+    margin: 0;
+    font-family: var(--font-sans);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pause-meta-group {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
+}
+
+.meta-label {
+    color: var(--text-muted);
+}
+
+.meta-value {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* Cast and Crew Styles */
+.pause-cast-section {
+    margin-top: 0.5rem;
+}
+
+.pause-cast-section h3 {
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin: 0 0 0.75rem 0;
+    font-weight: 700;
+    font-family: var(--font-sans);
+}
+
+.pause-cast-list {
+    display: flex;
+    gap: 1.25rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: none;
+}
+
+.pause-cast-list::-webkit-scrollbar {
+    display: none;
+}
+
+.cast-member-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.35rem;
+    min-width: 68px;
+}
+
+.cast-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.cast-member-card:hover .cast-avatar {
+    transform: scale(1.08);
+    border-color: var(--accent);
+}
+
+.cast-name {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: #e0e0e0;
+    max-width: 75px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--font-sans);
+}
+
+/* Scale up bottom control buttons and clean spacing */
+.control-btn i {
+    font-size: 1.45rem;
+}
+
+#player-play-toggle i {
+    font-size: 1.7rem;
+}
+
+#player-fullscreen i {
+    font-size: 1.4rem;
+}
+
+.controls-left, .controls-right {
+    gap: 2.2rem;
+}
+
+/* Subtitle and Audio Dropdown styles */
+.language-dropdown {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(18, 18, 18, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    padding: 1.2rem;
+    width: 270px;
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.6);
+    z-index: 101;
+    margin-bottom: 0.75rem;
+    justify-content: space-between;
+    gap: 1.25rem;
+    backdrop-filter: blur(15px);
+}
+
+.lang-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.lang-option {
+    background: transparent;
+    border: none;
+    color: #b3b3b3;
+    font-size: 0.85rem;
+    text-align: left;
+    padding: 0.4rem 0.6rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    transition: all 0.15s ease;
+    box-sizing: border-box;
+    outline: none;
+}
+
+.lang-option:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.lang-option.active {
+    color: var(--accent);
+    font-weight: 700;
+}
+
+.lang-option.active::after {
+    content: '✓';
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-left: 0.5rem;
+}
+
 
 
 

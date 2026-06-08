@@ -1059,13 +1059,91 @@ function launchVideoPlayer(movie, isTrailer = false) {
     const centerPlayTrigger = document.getElementById('player-center-play-trigger');
     const centerPlayIcon = document.getElementById('center-play-icon');
     if (centerPlayTrigger) {
-        centerPlayTrigger.style.opacity = '0';
-        centerPlayTrigger.style.transform = 'translate(-50%, -50%) scale(0.9)';
-        centerPlayTrigger.style.pointerEvents = 'none';
+        centerPlayTrigger.style.opacity = '';
+        centerPlayTrigger.style.transform = '';
+        centerPlayTrigger.style.pointerEvents = '';
         if (centerPlayIcon) {
             centerPlayIcon.className = "fa-solid fa-play";
-            centerPlayIcon.style.marginLeft = "8px";
+            centerPlayIcon.style.marginLeft = "6px";
         }
+    }
+
+    // Populate Netflix Paused Overlay Metadata
+    const pauseOverlay = document.getElementById('player-pause-overlay');
+    if (pauseOverlay) {
+        pauseOverlay.classList.remove('active');
+    }
+    
+    const pauseTitle = document.getElementById('pause-title');
+    const pauseRating = document.getElementById('pause-rating');
+    const pauseYear = document.getElementById('pause-year');
+    const pauseDuration = document.getElementById('pause-duration');
+    const pauseDesc = document.getElementById('pause-description');
+    const pauseGenres = document.getElementById('pause-genres');
+    const pauseCastList = document.getElementById('pause-cast-list');
+    
+    if (pauseTitle) pauseTitle.textContent = movie.title;
+    if (pauseRating) pauseRating.textContent = movie.rating || 'N/A';
+    if (pauseYear) pauseYear.textContent = movie.year;
+    if (pauseDuration) pauseDuration.textContent = movie.duration;
+    if (pauseDesc) pauseDesc.textContent = movie.description || 'No description available.';
+    if (pauseGenres) pauseGenres.textContent = movie.genre || 'Various';
+    
+    if (pauseCastList) {
+        pauseCastList.innerHTML = '';
+        if (movie.cast && movie.cast.length > 0) {
+            movie.cast.forEach(actor => {
+                const card = document.createElement('div');
+                card.className = 'cast-member-card';
+                card.innerHTML = `
+                    <img class="cast-avatar" src="${actor.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100'}" alt="${actor.name}" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=100'">
+                    <span class="cast-name">${actor.name}</span>
+                `;
+                pauseCastList.appendChild(card);
+            });
+            const castSec = document.querySelector('.pause-cast-section');
+            if (castSec) castSec.style.display = 'block';
+        } else {
+            const castSec = document.querySelector('.pause-cast-section');
+            if (castSec) castSec.style.display = 'none';
+        }
+    }
+
+    // Populate Subtitles & Audio selections
+    const audioList = document.getElementById('player-audio-list');
+    const subtitlesList = document.getElementById('player-subtitles-list');
+    
+    if (audioList) {
+        audioList.innerHTML = '';
+        const audios = movie.audioTracks ? movie.audioTracks.split(',').map(s => s.trim()) : ['English'];
+        audios.forEach((track, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `lang-option ${idx === 0 ? 'active' : ''}`;
+            btn.textContent = track;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                audioList.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+            });
+            audioList.appendChild(btn);
+        });
+    }
+    
+    if (subtitlesList) {
+        subtitlesList.innerHTML = '';
+        const subs = movie.captionTracks ? movie.captionTracks.split(',').map(s => s.trim()) : ['Off'];
+        if (!subs.includes('Off')) subs.unshift('Off');
+        subs.forEach((track, idx) => {
+            const btn = document.createElement('button');
+            btn.className = `lang-option ${idx === 0 ? 'active' : ''}`;
+            btn.textContent = track;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                subtitlesList.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
+                btn.classList.add('active');
+            });
+            subtitlesList.appendChild(btn);
+        });
     }
     
     let defaultVideoUrl = movie.videoUrl;
@@ -1219,6 +1297,11 @@ function closeVideoPlayer() {
         centerPlayTrigger.style.transform = 'translate(-50%, -50%) scale(0.9)';
         centerPlayTrigger.style.pointerEvents = 'none';
     }
+
+    const pauseOverlay = document.getElementById('player-pause-overlay');
+    if (pauseOverlay) {
+        pauseOverlay.classList.remove('active');
+    }
     
     videoPlayerOverlay.classList.remove('active');
     document.exitFullscreen().catch(() => {}); // exit fullscreen if active
@@ -1227,19 +1310,27 @@ closePlayerBtn.addEventListener('click', closeVideoPlayer);
 
 // Sync native video events to UI play/pause controls
 nativeVideo.addEventListener('play', () => {
-    playerPlayToggle.innerHTML = `<i class="fa-solid fa-pause" style="font-size: 1.25rem;"></i>`;
+    playerPlayToggle.innerHTML = `<i class="fa-solid fa-pause"></i>`;
     const centerPlayIcon = document.getElementById('center-play-icon');
     if (centerPlayIcon) {
         centerPlayIcon.className = "fa-solid fa-pause";
         centerPlayIcon.style.marginLeft = "0";
     }
+    const pauseOverlay = document.getElementById('player-pause-overlay');
+    if (pauseOverlay) {
+        pauseOverlay.classList.remove('active');
+    }
 });
 nativeVideo.addEventListener('pause', () => {
-    playerPlayToggle.innerHTML = `<i class="fa-solid fa-play" style="font-size: 1.25rem;"></i>`;
+    playerPlayToggle.innerHTML = `<i class="fa-solid fa-play"></i>`;
     const centerPlayIcon = document.getElementById('center-play-icon');
     if (centerPlayIcon) {
         centerPlayIcon.className = "fa-solid fa-play";
         centerPlayIcon.style.marginLeft = "6px";
+    }
+    const pauseOverlay = document.getElementById('player-pause-overlay');
+    if (pauseOverlay && nativeVideo.style.display !== 'none') {
+        pauseOverlay.classList.add('active');
     }
 });
 
@@ -1521,16 +1612,30 @@ playerSpeedBtn.addEventListener('click', () => {
     showControlsTemporarily();
 });
 
+// Language (Audio/Subtitles) Dropdown Toggle
+const playerLanguageBtn = document.getElementById('player-language-btn');
+const playerLanguageDropdown = document.getElementById('player-language-dropdown');
+if (playerLanguageBtn && playerLanguageDropdown) {
+    playerLanguageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playerQualityDropdown.style.display = 'none';
+        playerLanguageDropdown.style.display = playerLanguageDropdown.style.display === 'none' ? 'flex' : 'none';
+        showControlsTemporarily();
+    });
+}
+
 // Quality Dropdown Toggle
 playerQualityBtn.addEventListener('click', (e) => {
     e.stopPropagation();
+    if (playerLanguageDropdown) playerLanguageDropdown.style.display = 'none';
     playerQualityDropdown.style.display = playerQualityDropdown.style.display === 'none' ? 'flex' : 'none';
     showControlsTemporarily();
 });
 
-// Close quality dropdown when clicking elsewhere
+// Close quality & language dropdowns when clicking elsewhere
 document.addEventListener('click', () => {
     playerQualityDropdown.style.display = 'none';
+    if (playerLanguageDropdown) playerLanguageDropdown.style.display = 'none';
 });
 
 // Fullscreen API toggle
