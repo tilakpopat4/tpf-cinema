@@ -352,24 +352,44 @@ async function syncDatabaseFromFirebase() {
             firebase.initializeApp(config);
         }
         const storageRef = firebase.storage().ref();
-        const catalogRef = storageRef.child('tpf-cinema/database/catalog.json');
         
-        const url = await catalogRef.getDownloadURL();
-        const response = await fetch(url);
-        const cloudCatalog = await response.json();
-        
-        if (Array.isArray(cloudCatalog) && cloudCatalog.length > 0) {
-            movies = sanitizeCatalogLinks(cloudCatalog);
-            localStorage.setItem('tpf_catalog', JSON.stringify(movies));
+        // 1. Fetch Catalog
+        try {
+            const catalogRef = storageRef.child('tpf-cinema/database/catalog.json');
+            const url = await catalogRef.getDownloadURL();
+            const response = await fetch(url);
+            const cloudCatalog = await response.json();
             
-            // Re-sync featured hero status
-            featuredMovieId = localStorage.getItem('tpf_featured_id') || movies[0].id;
-            currentSelectedMovie = movies.find(m => m.id === featuredMovieId) || movies[0];
-            initHero(currentSelectedMovie);
-            renderRows(movies);
+            if (Array.isArray(cloudCatalog) && cloudCatalog.length > 0) {
+                movies = sanitizeCatalogLinks(cloudCatalog);
+                localStorage.setItem('tpf_catalog', JSON.stringify(movies));
+            }
+        } catch (e) {
+            console.warn("Could not sync catalog database from Firebase Storage, using local storage:", e);
         }
+        
+        // 2. Fetch Featured Banner ID
+        try {
+            const featuredRef = storageRef.child('tpf-cinema/database/featured_id.txt');
+            const fUrl = await featuredRef.getDownloadURL();
+            const fResponse = await fetch(fUrl);
+            const cloudFeaturedId = await fResponse.text();
+            if (cloudFeaturedId && cloudFeaturedId.trim()) {
+                featuredMovieId = cloudFeaturedId.trim();
+                localStorage.setItem('tpf_featured_id', featuredMovieId);
+                console.log("Database featured ID synced from cloud successfully:", featuredMovieId);
+            }
+        } catch (e) {
+            console.warn("Could not sync featured ID from Firebase Storage, using local storage:", e);
+            featuredMovieId = localStorage.getItem('tpf_featured_id') || (movies.length > 0 ? movies[0].id : '');
+        }
+
+        // Re-sync featured hero status
+        currentSelectedMovie = movies.find(m => m.id === featuredMovieId) || movies[0];
+        initHero(currentSelectedMovie);
+        renderRows(movies);
     } catch (error) {
-        console.warn("Could not sync catalog database from Firebase Storage:", error);
+        console.warn("Firebase Storage database sync failure:", error);
     }
 }
 

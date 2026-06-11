@@ -191,8 +191,9 @@ tabFirebase.addEventListener('click', () => {
 });
 
 // 4. Initialize dashboard elements & handlers
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
     initFirebaseCloud();
+    await syncCatalogFromFirebaseCloud();
     syncCatalogTable();
     initLocalFilePickers();
 });
@@ -647,7 +648,7 @@ movieEditorForm.addEventListener('submit', (e) => {
     syncCatalogTable();
 });
 
-// Helper to write complete database catalog JSON to Firebase Cloud Storage
+// Helper to write complete database catalog JSON and featured ID to Firebase Cloud Storage
 function syncCatalogToFirebaseCloud() {
     if (!firebaseStorage) {
         console.log("Local database saved. Cloud Sync is disabled.");
@@ -666,8 +667,57 @@ function syncCatalogToFirebaseCloud() {
         }).catch(err => {
             console.error("Firebase Storage database sync failure:", err);
         });
+
+        // Sync featured movie ID
+        if (featuredMovieId) {
+            const featuredRef = storageRef.child('tpf-cinema/database/featured_id.txt');
+            featuredRef.putString(featuredMovieId).then(() => {
+                console.log("Featured Banner ID synced to Firebase Storage successfully.");
+            }).catch(err => {
+                console.error("Firebase Storage featured ID sync failure:", err);
+            });
+        }
     } catch (error) {
         console.error("JSON serialization failed:", error);
+    }
+}
+
+// Helper to read database catalog JSON and featured ID from Firebase Cloud Storage on startup
+async function syncCatalogFromFirebaseCloud() {
+    if (!firebaseStorage) return;
+    
+    try {
+        const storageRef = firebaseStorage.ref();
+        
+        // 1. Fetch Catalog
+        try {
+            const catalogUrl = await storageRef.child('tpf-cinema/database/catalog.json').getDownloadURL();
+            const response = await fetch(catalogUrl);
+            const data = await response.json();
+            if (Array.isArray(data) && data.length > 0) {
+                movies = sanitizeCatalogLinks(data);
+                localStorage.setItem('tpf_catalog', JSON.stringify(movies));
+                console.log("Database catalog loaded from cloud successfully.");
+            }
+        } catch (e) {
+            console.warn("No catalog found on cloud or fetch failed, using local fallback version.");
+        }
+        
+        // 2. Fetch Featured Banner ID
+        try {
+            const featuredUrl = await storageRef.child('tpf-cinema/database/featured_id.txt').getDownloadURL();
+            const response = await fetch(featuredUrl);
+            const featuredId = await response.text();
+            if (featuredId) {
+                featuredMovieId = featuredId.trim();
+                localStorage.setItem('tpf_featured_id', featuredMovieId);
+                console.log("Featured Hero Banner ID loaded from cloud:", featuredMovieId);
+            }
+        } catch (e) {
+            console.warn("No featured ID found on cloud, using local fallback version.");
+        }
+    } catch (error) {
+        console.error("Failed to sync database from Firebase Storage:", error);
     }
 }
 
